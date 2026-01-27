@@ -7,13 +7,27 @@ body {
 }
 
 .stage {
-  width: 220px;
-  height: 160px;
-  margin: 40px auto;
-  background: #333;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+  width: 600px;
+  height: 200px;
+  margin: 20px auto;
+  background: #87ceeb; /* sky blue */
+  position: relative;
+  overflow: hidden;
+  border: 4px solid #111;
+}
+
+/* GRASS BASEPLATE */
+.ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: #0f800f;
+  border-top: 2px solid #111;
+  /* pixelated grass pattern */
+  background-image: linear-gradient(45deg, #0f800f 25%, #1abc1a 25%, #1abc1a 50%, #0f800f 50%, #0f800f 75%, #1abc1a 75%, #1abc1a);
+  background-size: 16px 16px;
 }
 
 /* COLORS */
@@ -25,10 +39,13 @@ body {
 
 /* CHARACTER */
 .character {
-  position: relative;
+  position: absolute;
+  bottom: 40px; /* on top of grass */
+  left: 50px;
   width: 32px;
   height: 52px;
   image-rendering: pixelated;
+  transition: transform 0.05s linear;
 }
 
 /* HEAD */
