@@ -1,29 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Funny Yellow Guy Game</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Pixel Noob Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #87ceeb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: monospace;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      border: 4px solid #000;
+      background: #87ceeb;
+    }
+  </style>
 </head>
 <body>
-<h2>Funny Yellow Guy Game 🙂</h2>
+  <canvas id="game" width="320" height="180"></canvas>
 
-<div class="stage">
-  <div class="ground"></div>
-  <div class="character idle" id="player">
-    <div class="head">
-      <span class="eye left"></span>
-      <span class="eye right"></span>
-      <span class="mouth"></span>
-    </div>
-    <div class="body"></div>
-    <div class="leg left"></div>
-    <div class="leg right"></div>
-  </div>
-</div>
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
 
-<p>Controls: A = left, S = right, Space = jump</p>
+    // Scale up for retro look
+    const SCALE = 3;
+    canvas.style.width = canvas.width * SCALE + "px";
+    canvas.style.height = canvas.height * SCALE + "px";
 
-<script src="script.js"></script>
+    // Player
+    const player = {
+      x: 40,
+      y: 110,
+      vx: 0,
+      speed: 1.2,
+      onGround: true
+    };
+
+    const keys = {};
+    window.addEventListener("keydown", e => keys[e.key] = true);
+    window.addEventListener("keyup", e => keys[e.key] = false);
+
+    // Clouds
+    const clouds = [
+      { x: 50, y: 30 },
+      { x: 140, y: 20 },
+      { x: 220, y: 40 }
+    ];
+
+    function drawPixelCircle(x, y, r, color) {
+      ctx.fillStyle = color;
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          if (dx * dx + dy * dy <= r * r) {
+            ctx.fillRect(x + dx, y + dy, 1, 1);
+          }
+        }
+      }
+    }
+
+    function drawNoob() {
+      // Body
+      ctx.fillStyle = "#1e90ff";
+      ctx.fillRect(player.x + 6, player.y + 12, 12, 10);
+
+      // Head (big & round)
+      drawPixelCircle(player.x + 12, player.y + 6, 6, "#ffd800");
+
+      // Face
+      ctx.fillStyle = "#000";
+      ctx.fillRect(player.x + 9, player.y + 5, 1, 1);
+      ctx.fillRect(player.x + 14, player.y + 5, 1, 1);
+      ctx.fillRect(player.x + 10, player.y + 8, 5, 1);
+    }
+
+    function drawGrass() {
+      ctx.fillStyle = "#228b22";
+      ctx.fillRect(0, 140, canvas.width, 40);
+
+      ctx.fillStyle = "#1b6b1b";
+      for (let i = 0; i < canvas.width; i += 4) {
+        ctx.fillRect(i, 138, 2, 2);
+      }
+    }
+
+    function drawCloud(cloud) {
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(cloud.x, cloud.y, 14, 6);
+      ctx.fillRect(cloud.x + 4, cloud.y - 3, 10, 6);
+      ctx.fillRect(cloud.x + 8, cloud.y + 2, 12, 6);
+    }
+
+    function update() {
+      // Movement
+      player.vx = 0;
+      if (keys["ArrowLeft"] || keys["a"]) player.vx = -player.speed;
+      if (keys["ArrowRight"] || keys["d"]) player.vx = player.speed;
+      player.x += player.vx;
+
+      // Bounds
+      player.x = Math.max(0, Math.min(canvas.width - 24, player.x));
+
+      // Clouds move
+      clouds.forEach(c => {
+        c.x -= 0.2;
+        if (c.x < -30) c.x = canvas.width + 20;
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      clouds.forEach(drawCloud);
+      drawGrass();
+      drawNoob();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
 </body>
 </html>
