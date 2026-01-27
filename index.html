@@ -9,7 +9,52 @@ body {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Find The Button</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<audio autoplay loop hidden>
+  <!-- optional ambience -->
+</audio>
+
+<!-- Crosshair -->
+<div class="crosshair">+</div>
+
+<!-- HUD -->
+<div class="hud">LEVEL 1</div>
+
+<!-- P key redirect -->
+<a href="https://stsei.de" accesskey="p" class="hidden-link"></a>
+
+<!-- LEVEL 1 -->
+<section id="level1" class="level">
+  <div class="world">
+    <div class="block floor"></div>
+    <div class="block wall"></div>
+
+    <!-- Button perfectly centered -->
+    <a href="#level2" class="button red"></a>
+  </div>
+</section>
+
+<!-- LEVEL 2 -->
+<section id="level2" class="level">
+  <div class="world">
+    <div class="block floor"></div>
+    <div class="block wall"></div>
+
+    <a href="#level3" class="button red"></a>
+  </div>
+</section>
+
+</body>
+</html>
+
   font-size: 24px;
   color: black;
   user-select: none;
