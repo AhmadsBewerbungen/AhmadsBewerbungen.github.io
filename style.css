@@ -1,100 +1,149 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* PAGE */
 body {
-  background: skyblue;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+  background: #1e1e1e;
+  color: white;
+  font-family: monospace;
+  text-align: center;
 }
 
-/* LEVELS */
-.level {
-  position: absolute;
-  inset: 0;
-  display: none;
+.stage {
+  width: 220px;
+  height: 160px;
+  margin: 40px auto;
+  background: #333;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
-#level1:target,
-#level2:target {
-  display: block;
+/* COLORS */
+:root {
+  --yellow: #ffd800;
+  --yellow-dark: #e6b800;
+  --outline: #111;
 }
 
-/* default level */
-body:not(:has(:target)) #level1 {
-  display: block;
-}
-
-/* WORLD */
-.world {
-  width: 100%;
-  height: 100%;
+/* CHARACTER */
+.character {
   position: relative;
-  background: linear-gradient(#87ceeb, #d0f0ff);
+  width: 32px;
+  height: 52px;
+  image-rendering: pixelated;
 }
 
-/* ROBLOX BLOCKS */
-.block {
+/* HEAD */
+.head {
   position: absolute;
-  background: #eee;
-  border-radius: 6px;
-  box-shadow: inset -6px -6px 0 rgba(0,0,0,0.1);
-}
-
-.floor {
-  width: 100%;
-  height: 120px;
-  bottom: 0;
-  background: #5cb85c;
-}
-
-.wall {
-  width: 300px;
-  height: 200px;
-  left: 100px;
-  bottom: 120px;
-}
-
-/* BUTTON */
-.button.red {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: red;
+  top: 0;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow);
+  border: 2px solid var(--outline);
   border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 6px black;
 }
 
-/* CROSSHAIR */
-.crosshair {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 24px;
-  color: black;
-  pointer-events: none;
-}
-
-/* HUD */
-.hud {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  background: rgba(255,255,255,0.7);
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-
-/* HIDE LINKS */
-.hidden-link {
+.eye {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  background: var(--outline);
+}
+
+.eye.left { left: 6px; }
+.eye.right { right: 6px; }
+
+.mouth {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  width: 12px;
+  height: 6px;
+  border-bottom: 2px solid var(--outline);
+  border-radius: 0 0 10px 10px;
+}
+
+/* BODY */
+.body {
+  position: absolute;
+  top: 24px;
+  left: 8px;
+  width: 16px;
+  height: 14px;
+  background: var(--yellow);
+  border: 2px solid var(--outline);
+}
+
+/* LEGS */
+.leg {
+  position: absolute;
+  top: 40px;
+  width: 6px;
+  height: 10px;
+  background: var(--yellow-dark);
+  border: 2px solid var(--outline);
+  transform-origin: top center;
+}
+
+.leg.left { left: 6px; }
+.leg.right { right: 6px; }
+
+/* =====================
+   IDLE ANIMATION
+===================== */
+.idle {
+  animation: idleBounce 1.2s infinite ease-in-out;
+}
+
+@keyframes idleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* =====================
+   RUN ANIMATION
+===================== */
+.run {
+  animation: runBob 0.4s infinite linear;
+}
+
+.run .leg.left {
+  animation: runLeg 0.2s infinite alternate;
+}
+
+.run .leg.right {
+  animation: runLeg 0.2s infinite alternate-reverse;
+}
+
+@keyframes runBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes runLeg {
+  from { transform: rotate(25deg); }
+  to { transform: rotate(-25deg); }
+}
+
+/* =====================
+   JUMP ANIMATION
+===================== */
+.jump {
+  animation: jumpUp 0.8s infinite ease-in-out;
+}
+
+.jump .mouth {
+  border-bottom: none;
+  border-top: 2px solid var(--outline);
+}
+
+.jump .leg {
+  transform: rotate(10deg);
+}
+
+@keyframes jumpUp {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-28px); }
+  100% { transform: translateY(0); }
 }
