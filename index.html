@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Retro Roblox Noob</title>
+<title>Retro Noob</title>
 <style>
   body {
     margin: 0;
@@ -25,7 +25,7 @@
 
 <script>
 /* =====================
-   BASIC SETUP
+   SETUP
    ===================== */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -34,8 +34,8 @@ const SCALE = 3;
 canvas.style.width = canvas.width * SCALE + "px";
 canvas.style.height = canvas.height * SCALE + "px";
 
-const GRAVITY = 0.25;
 const GROUND_Y = 140;
+const GRAVITY = 0.35;
 
 const keys = {};
 addEventListener("keydown", e => keys[e.key] = true);
@@ -62,35 +62,28 @@ const player = {
   frameTimer: 0
 };
 
+/* 5 frames each */
 const animations = {
-  idle: { frames: 4, fps: 12 },
-  run:  { frames: 6, fps: 16 },
-  jump: { frames: 1, fps: 1 }
+  idle: { frames: 5, fps: 12 },
+  run:  { frames: 5, fps: 16 },
+  jump: { frames: 5, fps: 8 }
 };
 
 /* =====================
-   LEVEL DATA
+   BACKGROUND
    ===================== */
-const platforms = [
-  { x: 0,   y: GROUND_Y, w: 800, h: 40 },
-  { x: 120, y: 110, w: 40, h: 8 },
-  { x: 200, y: 90,  w: 40, h: 8 },
-  { x: 280, y: 70,  w: 40, h: 8 }
-];
-
-const coins = [
-  { x: 130, y: 90, taken: false },
-  { x: 210, y: 70, taken: false },
-  { x: 290, y: 50, taken: false }
-];
-
 const clouds = [
-  { x: 40, y: 25 },
-  { x: 160, y: 35 },
+  { x: 30, y: 25 },
+  { x: 140, y: 35 },
   { x: 260, y: 20 }
 ];
 
-let score = 0;
+const trees = [
+  { x: 80 },
+  { x: 160 },
+  { x: 240 },
+  { x: 320 }
+];
 
 /* =====================
    DRAW NOOB (RETRO)
@@ -104,11 +97,17 @@ function drawNoob(frame) {
   ctx.scale(player.facing, 1);
   ctx.translate(-px - player.w / 2, 0);
 
-  const bob = player.state === "idle"
-    ? Math.sin(frame * 0.6) * 1
-    : 0;
+  const bob =
+    player.state === "idle"
+      ? Math.sin(frame * 0.6) * 1
+      : 0;
 
-  // Head
+  const runSwing =
+    player.state === "run"
+      ? Math.sin(frame) * 2
+      : 0;
+
+  /* HEAD */
   ctx.fillStyle = "#ffd800";
   ctx.fillRect(px + 3, py - 4 + bob, 18, 18);
 
@@ -121,7 +120,7 @@ function drawNoob(frame) {
   ctx.strokeStyle = "#000";
   ctx.strokeRect(px + 3, py - 4 + bob, 18, 18);
 
-  // Face
+  /* FACE */
   ctx.fillStyle = "#000";
   ctx.fillRect(px + 8,  py + 3 + bob, 2, 2);
   ctx.fillRect(px + 14, py + 3 + bob, 2, 2);
@@ -129,21 +128,20 @@ function drawNoob(frame) {
   ctx.fillRect(px + 8,  py + 7 + bob, 1, 1);
   ctx.fillRect(px + 15, py + 7 + bob, 1, 1);
 
-  // Body
+  /* BODY */
   ctx.fillStyle = "#1e90ff";
   ctx.fillRect(px + 9, py + 14, 6, 6);
   ctx.strokeRect(px + 9, py + 14, 6, 6);
 
-  // Arms
-  const swing = player.state === "run" ? Math.sin(frame) * 2 : 0;
+  /* ARMS */
   ctx.fillStyle = "#ffd800";
-  ctx.fillRect(px + 5,  py + 14 + swing, 3, 6);
-  ctx.fillRect(px + 16, py + 14 - swing, 3, 6);
+  ctx.fillRect(px + 5,  py + 14 + runSwing, 3, 6);
+  ctx.fillRect(px + 16, py + 14 - runSwing, 3, 6);
 
-  // Legs
+  /* LEGS */
   ctx.fillStyle = "#000";
-  ctx.fillRect(px + 9,  py + 20 + swing, 2, 4);
-  ctx.fillRect(px + 13, py + 20 - swing, 2, 4);
+  ctx.fillRect(px + 9,  py + 20 + runSwing, 2, 4);
+  ctx.fillRect(px + 13, py + 20 - runSwing, 2, 4);
 
   ctx.restore();
 }
@@ -151,24 +149,29 @@ function drawNoob(frame) {
 /* =====================
    DRAW WORLD
    ===================== */
-function drawPlatform(p) {
+function drawGrass() {
   ctx.fillStyle = "#228b22";
-  ctx.fillRect(p.x - camera.x, p.y, p.w, p.h);
-  ctx.fillStyle = "#1b6b1b";
-  ctx.fillRect(p.x - camera.x, p.y, p.w, 4);
-}
+  ctx.fillRect(0, GROUND_Y, canvas.width, 40);
 
-function drawCoin(c) {
-  ctx.fillStyle = "#ffd800";
-  ctx.fillRect(c.x - camera.x, c.y, 6, 6);
-  ctx.strokeStyle = "#000";
-  ctx.strokeRect(c.x - camera.x, c.y, 6, 6);
+  ctx.fillStyle = "#1b6b1b";
+  for (let i = 0; i < canvas.width; i += 4) {
+    ctx.fillRect(i, GROUND_Y - 2, 2, 2);
+  }
 }
 
 function drawCloud(c) {
+  const x = c.x - camera.x * 0.3;
   ctx.fillStyle = "#fff";
-  ctx.fillRect(c.x - camera.x * 0.3, c.y, 16, 6);
-  ctx.fillRect(c.x - camera.x * 0.3 + 4, c.y - 4, 12, 6);
+  ctx.fillRect(x, c.y, 16, 6);
+  ctx.fillRect(x + 4, c.y - 4, 12, 6);
+}
+
+function drawTree(t) {
+  const x = t.x - camera.x * 0.5;
+  ctx.fillStyle = "#8b4513";
+  ctx.fillRect(x + 6, GROUND_Y - 14, 4, 14);
+  ctx.fillStyle = "#2e8b57";
+  ctx.fillRect(x, GROUND_Y - 24, 16, 10);
 }
 
 /* =====================
@@ -176,67 +179,52 @@ function drawCloud(c) {
    ===================== */
 function update(dt) {
   player.vx = 0;
+
   if (keys["ArrowLeft"] || keys["a"]) {
-    player.vx = -1.5;
+    player.vx = -1.6;
     player.facing = -1;
   }
   if (keys["ArrowRight"] || keys["d"]) {
-    player.vx = 1.5;
+    player.vx = 1.6;
     player.facing = 1;
   }
+
   if ((keys[" "] || keys["ArrowUp"]) && player.vy === 0) {
-    player.vy = -5;
+    player.vy = -5.5;
   }
 
   player.vy += GRAVITY;
+
   player.x += player.vx;
   player.y += player.vy;
 
-  // Collisions
-  platforms.forEach(p => {
-    if (
-      player.x + player.w > p.x &&
-      player.x < p.x + p.w &&
-      player.y <= p.y &&
-      player.y + player.vy >= p.y
-    ) {
-      player.y = p.y;
-      player.vy = 0;
-    }
-  });
+  /* SOLID GROUND (NO FALLING THROUGH) */
+  if (player.y > GROUND_Y) {
+    player.y = GROUND_Y;
+    player.vy = 0;
+  }
 
-  // State
-  player.state =
-    player.vy !== 0 ? "jump" :
-    player.vx !== 0 ? "run" : "idle";
+  /* STATE */
+  if (player.vy !== 0) player.state = "jump";
+  else if (player.vx !== 0) player.state = "run";
+  else player.state = "idle";
 
-  // Animation
+  /* ANIMATION */
   const anim = animations[player.state];
   player.frameTimer += dt;
-  if (player.frameTimer > 1000 / anim.fps) {
+  if (player.frameTimer >= 1000 / anim.fps) {
     player.frame = (player.frame + 1) % anim.frames;
     player.frameTimer = 0;
   }
 
-  // Coins
-  coins.forEach(c => {
-    if (!c.taken &&
-        player.x < c.x + 6 &&
-        player.x + player.w > c.x &&
-        player.y - player.h < c.y + 6 &&
-        player.y > c.y) {
-      c.taken = true;
-      score++;
-    }
-  });
-
-  // Camera follow
+  /* CAMERA */
   camera.x = player.x - 80;
 
-  // Clouds
+  /* CLOUD LOOP */
   clouds.forEach(c => {
-    c.x -= 0.2;
-    if (c.x < -50) c.x += 400;
+    if (c.x - camera.x * 0.3 < -40) {
+      c.x += 400;
+    }
   });
 }
 
@@ -247,12 +235,9 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   clouds.forEach(drawCloud);
-  platforms.forEach(drawPlatform);
-  coins.filter(c => !c.taken).forEach(drawCoin);
+  trees.forEach(drawTree);
+  drawGrass();
   drawNoob(player.frame);
-
-  ctx.fillStyle = "#000";
-  ctx.fillText("STUDS: " + score, 8, 12);
 }
 
 /* =====================
