@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Retro Noob</title>
+<title>Retro Noob (Polished)</title>
 <style>
   body {
     margin: 0;
@@ -14,8 +14,8 @@
   }
   canvas {
     image-rendering: pixelated;
-    border: 4px solid #000;
-    background: #87ceeb;
+    border: 4px solid #111;
+    background: #000;
   }
 </style>
 </head>
@@ -26,7 +26,7 @@
 <script>
 /* =====================
    SETUP
-   ===================== */
+===================== */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -43,12 +43,12 @@ addEventListener("keyup", e => keys[e.key] = false);
 
 /* =====================
    CAMERA
-   ===================== */
+===================== */
 const camera = { x: 0 };
 
 /* =====================
    PLAYER
-   ===================== */
+===================== */
 const player = {
   x: 40,
   y: GROUND_Y,
@@ -62,121 +62,120 @@ const player = {
   frameTimer: 0
 };
 
-/* 5 frames each */
 const animations = {
-  idle: { frames: 5, fps: 12 },
-  run:  { frames: 5, fps: 16 },
-  jump: { frames: 5, fps: 8 }
+  idle: { frames: 6, fps: 10 },
+  run:  { frames: 6, fps: 16 },
+  jump: { frames: 1, fps: 1 }
 };
 
 /* =====================
    BACKGROUND
-   ===================== */
+===================== */
 const clouds = [
-  { x: 30, y: 25 },
-  { x: 140, y: 35 },
-  { x: 260, y: 20 }
+  { x: 20, y: 22 },
+  { x: 120, y: 34 },
+  { x: 220, y: 18 }
 ];
 
 const trees = [
-  { x: 80 },
-  { x: 160 },
-  { x: 240 },
-  { x: 320 }
+  { x: 60 },
+  { x: 140 },
+  { x: 220 },
+  { x: 300 }
 ];
 
 /* =====================
-   DRAW NOOB (RETRO)
-   ===================== */
+   DRAW PLAYER
+===================== */
 function drawNoob(frame) {
   const px = Math.floor(player.x - camera.x);
   const py = Math.floor(player.y - player.h);
+
+  const bob =
+    player.state === "idle" ? Math.sin(frame * 0.6) * 1 :
+    player.state === "run"  ? Math.sin(frame) * 1.5 : 0;
+
+  const swing =
+    player.state === "run" ? Math.sin(frame) * 2 : 0;
+
+  // shadow
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillRect(px + 6, GROUND_Y + 2, 12, 3);
 
   ctx.save();
   ctx.translate(px + player.w / 2, 0);
   ctx.scale(player.facing, 1);
   ctx.translate(-px - player.w / 2, 0);
 
-  const bob =
-    player.state === "idle"
-      ? Math.sin(frame * 0.6) * 1
-      : 0;
-
-  const runSwing =
-    player.state === "run"
-      ? Math.sin(frame) * 2
-      : 0;
-
-  /* HEAD */
-  ctx.fillStyle = "#ffd800";
+  // head
+  ctx.fillStyle = "#ffde3b";
   ctx.fillRect(px + 3, py - 4 + bob, 18, 18);
-
-  ctx.fillStyle = "#e6c200";
-  ctx.fillRect(px + 12, py + 6 + bob, 9, 8);
-
-  ctx.fillStyle = "#ffef66";
-  ctx.fillRect(px + 4, py - 3 + bob, 6, 4);
-
   ctx.strokeStyle = "#000";
   ctx.strokeRect(px + 3, py - 4 + bob, 18, 18);
 
-  /* FACE */
+  // face
   ctx.fillStyle = "#000";
-  ctx.fillRect(px + 8,  py + 3 + bob, 2, 2);
-  ctx.fillRect(px + 14, py + 3 + bob, 2, 2);
-  ctx.fillRect(px + 9,  py + 8 + bob, 6, 1);
-  ctx.fillRect(px + 8,  py + 7 + bob, 1, 1);
-  ctx.fillRect(px + 15, py + 7 + bob, 1, 1);
+  ctx.fillRect(px + 8, py + 4 + bob, 2, 2);
+  ctx.fillRect(px + 14, py + 4 + bob, 2, 2);
+  ctx.fillRect(px + 9, py + 9 + bob, 6, 1);
 
-  /* BODY */
+  // body
   ctx.fillStyle = "#1e90ff";
-  ctx.fillRect(px + 9, py + 14, 6, 6);
-  ctx.strokeRect(px + 9, py + 14, 6, 6);
+  ctx.fillRect(px + 8, py + 14, 8, 7);
+  ctx.strokeRect(px + 8, py + 14, 8, 7);
 
-  /* ARMS */
-  ctx.fillStyle = "#ffd800";
-  ctx.fillRect(px + 5,  py + 14 + runSwing, 3, 6);
-  ctx.fillRect(px + 16, py + 14 - runSwing, 3, 6);
+  // arms
+  ctx.fillStyle = "#ffde3b";
+  ctx.fillRect(px + 4, py + 14 + swing, 3, 6);
+  ctx.fillRect(px + 17, py + 14 - swing, 3, 6);
 
-  /* LEGS */
-  ctx.fillStyle = "#000";
-  ctx.fillRect(px + 9,  py + 20 + runSwing, 2, 4);
-  ctx.fillRect(px + 13, py + 20 - runSwing, 2, 4);
+  // legs
+  ctx.fillStyle = "#111";
+  ctx.fillRect(px + 9, py + 21 + swing, 3, 5);
+  ctx.fillRect(px + 12, py + 21 - swing, 3, 5);
 
   ctx.restore();
 }
 
 /* =====================
-   DRAW WORLD
-   ===================== */
+   WORLD
+===================== */
+function drawSky() {
+  const g = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+  g.addColorStop(0, "#7ecbff");
+  g.addColorStop(1, "#bfe9ff");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, GROUND_Y);
+}
+
 function drawGrass() {
-  ctx.fillStyle = "#228b22";
+  ctx.fillStyle = "#2f8f2f";
   ctx.fillRect(0, GROUND_Y, canvas.width, 40);
 
-  ctx.fillStyle = "#1b6b1b";
-  for (let i = 0; i < canvas.width; i += 4) {
-    ctx.fillRect(i, GROUND_Y - 2, 2, 2);
+  ctx.fillStyle = "#267326";
+  for (let i = 0; i < canvas.width; i += 3) {
+    ctx.fillRect(i, GROUND_Y - 2, 1, 2);
   }
 }
 
 function drawCloud(c) {
-  const x = c.x - camera.x * 0.3;
+  const x = c.x - camera.x * 0.25;
   ctx.fillStyle = "#fff";
-  ctx.fillRect(x, c.y, 16, 6);
+  ctx.fillRect(x, c.y, 18, 6);
   ctx.fillRect(x + 4, c.y - 4, 12, 6);
 }
 
 function drawTree(t) {
-  const x = t.x - camera.x * 0.5;
-  ctx.fillStyle = "#8b4513";
-  ctx.fillRect(x + 6, GROUND_Y - 14, 4, 14);
+  const x = t.x - camera.x * 0.6;
+  ctx.fillStyle = "#7a3e1d";
+  ctx.fillRect(x + 6, GROUND_Y - 16, 4, 16);
   ctx.fillStyle = "#2e8b57";
-  ctx.fillRect(x, GROUND_Y - 24, 16, 10);
+  ctx.fillRect(x - 2, GROUND_Y - 28, 20, 12);
 }
 
 /* =====================
    UPDATE
-   ===================== */
+===================== */
 function update(dt) {
   player.vx = 0;
 
@@ -194,22 +193,18 @@ function update(dt) {
   }
 
   player.vy += GRAVITY;
-
   player.x += player.vx;
   player.y += player.vy;
 
-  /* SOLID GROUND (NO FALLING THROUGH) */
   if (player.y > GROUND_Y) {
     player.y = GROUND_Y;
     player.vy = 0;
   }
 
-  /* STATE */
-  if (player.vy !== 0) player.state = "jump";
-  else if (player.vx !== 0) player.state = "run";
-  else player.state = "idle";
+  player.state =
+    player.vy !== 0 ? "jump" :
+    player.vx !== 0 ? "run" : "idle";
 
-  /* ANIMATION */
   const anim = animations[player.state];
   player.frameTimer += dt;
   if (player.frameTimer >= 1000 / anim.fps) {
@@ -217,23 +212,19 @@ function update(dt) {
     player.frameTimer = 0;
   }
 
-  /* CAMERA */
   camera.x = player.x - 80;
 
-  /* CLOUD LOOP */
   clouds.forEach(c => {
-    if (c.x - camera.x * 0.3 < -40) {
-      c.x += 400;
-    }
+    if (c.x - camera.x * 0.25 < -40) c.x += 400;
   });
 }
 
 /* =====================
    DRAW
-   ===================== */
+===================== */
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  drawSky();
   clouds.forEach(drawCloud);
   trees.forEach(drawTree);
   drawGrass();
@@ -242,7 +233,7 @@ function draw() {
 
 /* =====================
    LOOP
-   ===================== */
+===================== */
 let last = 0;
 function loop(t) {
   const dt = t - last;
