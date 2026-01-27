@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Funny Yellow Guy</title>
+  <title>Funny Yellow Guy Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<h2>Funny Yellow Guy 🙂</h2>
+<h2>Funny Yellow Guy Game 🙂</h2>
 
 <div class="stage">
-  <!-- change animation class: idle | run | jump -->
-  <div class="character idle">
+  <div class="ground"></div>
+  <div class="character idle" id="player">
     <div class="head">
       <span class="eye left"></span>
       <span class="eye right"></span>
@@ -23,7 +22,8 @@
   </div>
 </div>
 
-<p>Change class to <b>idle</b>, <b>run</b>, or <b>jump</b></p>
+<p>Controls: A = left, S = right, Space = jump</p>
 
+<script src="script.js"></script>
 </body>
 </html>
