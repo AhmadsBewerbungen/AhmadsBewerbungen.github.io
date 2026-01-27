@@ -1,72 +1,29 @@
-body {
-  margin: 0;
-  overflow: hidden;
-  background: #87ceeb;
-  font-family: Arial, sans-serif;
-}
-
-#crosshair {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Find The Button</title>
+  <title>Funny Yellow Guy</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<audio autoplay loop hidden>
-  <!-- optional ambience -->
-</audio>
+<h2>Funny Yellow Guy 🙂</h2>
 
-<!-- Crosshair -->
-<div class="crosshair">+</div>
-
-<!-- HUD -->
-<div class="hud">LEVEL 1</div>
-
-<!-- P key redirect -->
-<a href="https://stsei.de" accesskey="p" class="hidden-link"></a>
-
-<!-- LEVEL 1 -->
-<section id="level1" class="level">
-  <div class="world">
-    <div class="block floor"></div>
-    <div class="block wall"></div>
-
-    <!-- Button perfectly centered -->
-    <a href="#level2" class="button red"></a>
+<div class="stage">
+  <!-- change animation class: idle | run | jump -->
+  <div class="character idle">
+    <div class="head">
+      <span class="eye left"></span>
+      <span class="eye right"></span>
+      <span class="mouth"></span>
+    </div>
+    <div class="body"></div>
+    <div class="leg left"></div>
+    <div class="leg right"></div>
   </div>
-</section>
+</div>
 
-<!-- LEVEL 2 -->
-<section id="level2" class="level">
-  <div class="world">
-    <div class="block floor"></div>
-    <div class="block wall"></div>
-
-    <a href="#level3" class="button red"></a>
-  </div>
-</section>
+<p>Change class to <b>idle</b>, <b>run</b>, or <b>jump</b></p>
 
 </body>
 </html>
-
-  font-size: 24px;
-  color: black;
-  user-select: none;
-}
-
-#info {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.6);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-}
