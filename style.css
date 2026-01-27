@@ -1,27 +1,100 @@
-body {
+* {
   margin: 0;
-  overflow: hidden;
-  background: #87ceeb;
-  font-family: Arial, sans-serif;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-#crosshair {
+body {
+  background: skyblue;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* LEVELS */
+.level {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+#level1:target,
+#level2:target {
+  display: block;
+}
+
+/* default level */
+body:not(:has(:target)) #level1 {
+  display: block;
+}
+
+/* WORLD */
+.world {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(#87ceeb, #d0f0ff);
+}
+
+/* ROBLOX BLOCKS */
+.block {
+  position: absolute;
+  background: #eee;
+  border-radius: 6px;
+  box-shadow: inset -6px -6px 0 rgba(0,0,0,0.1);
+}
+
+.floor {
+  width: 100%;
+  height: 120px;
+  bottom: 0;
+  background: #5cb85c;
+}
+
+.wall {
+  width: 300px;
+  height: 200px;
+  left: 100px;
+  bottom: 120px;
+}
+
+/* BUTTON */
+.button.red {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: red;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px black;
+}
+
+/* CROSSHAIR */
+.crosshair {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 24px;
   color: black;
-  user-select: none;
+  pointer-events: none;
 }
 
-#info {
+/* HUD */
+.hud {
   position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.6);
-  color: white;
-  padding: 8px 12px;
+  top: 10px;
+  left: 10px;
+  background: rgba(255,255,255,0.7);
+  padding: 6px 12px;
   border-radius: 6px;
+}
+
+/* HIDE LINKS */
+.hidden-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
