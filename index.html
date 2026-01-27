@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Pixel Noob Runner</title>
+<meta charset="UTF-8">
+<title>Retro Roblox Noob</title>
 <style>
   body {
     margin: 0;
-    background: #87ceeb;
+    background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,6 +15,7 @@
   canvas {
     image-rendering: pixelated;
     border: 4px solid #000;
+    background: #87ceeb;
   }
 </style>
 </head>
@@ -23,6 +24,9 @@
 <canvas id="game" width="320" height="180"></canvas>
 
 <script>
+/* =====================
+   BASIC SETUP
+   ===================== */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -34,43 +38,65 @@ const GRAVITY = 0.25;
 const GROUND_Y = 140;
 
 const keys = {};
-window.addEventListener("keydown", e => keys[e.key] = true);
-window.addEventListener("keyup", e => keys[e.key] = false);
+addEventListener("keydown", e => keys[e.key] = true);
+addEventListener("keyup", e => keys[e.key] = false);
 
+/* =====================
+   CAMERA
+   ===================== */
+const camera = { x: 0 };
+
+/* =====================
+   PLAYER
+   ===================== */
 const player = {
   x: 40,
   y: GROUND_Y,
   vx: 0,
   vy: 0,
   w: 24,
-  h: 24,
+  h: 26,
   facing: 1,
   state: "idle",
   frame: 0,
   frameTimer: 0
 };
 
-// Animation definitions
 const animations = {
   idle: { frames: 4, fps: 12 },
   run:  { frames: 6, fps: 16 },
   jump: { frames: 1, fps: 1 }
 };
 
-function drawPixelCircle(cx, cy, r, color) {
-  ctx.fillStyle = color;
-  for (let y = -r; y <= r; y++) {
-    for (let x = -r; x <= r; x++) {
-      if (x*x + y*y <= r*r) {
-        ctx.fillRect(cx + x, cy + y, 1, 1);
-      }
-    }
-  }
-}
+/* =====================
+   LEVEL DATA
+   ===================== */
+const platforms = [
+  { x: 0,   y: GROUND_Y, w: 800, h: 40 },
+  { x: 120, y: 110, w: 40, h: 8 },
+  { x: 200, y: 90,  w: 40, h: 8 },
+  { x: 280, y: 70,  w: 40, h: 8 }
+];
 
-// Draw player sprite per frame
+const coins = [
+  { x: 130, y: 90, taken: false },
+  { x: 210, y: 70, taken: false },
+  { x: 290, y: 50, taken: false }
+];
+
+const clouds = [
+  { x: 40, y: 25 },
+  { x: 160, y: 35 },
+  { x: 260, y: 20 }
+];
+
+let score = 0;
+
+/* =====================
+   DRAW NOOB (RETRO)
+   ===================== */
 function drawNoob(frame) {
-  const px = Math.floor(player.x);
+  const px = Math.floor(player.x - camera.x);
   const py = Math.floor(player.y - player.h);
 
   ctx.save();
@@ -78,70 +104,78 @@ function drawNoob(frame) {
   ctx.scale(player.facing, 1);
   ctx.translate(-px - player.w / 2, 0);
 
-  // Head bob for idle
-  const headBob = player.state === "idle"
-    ? Math.sin(frame * 0.8) * 1
+  const bob = player.state === "idle"
+    ? Math.sin(frame * 0.6) * 1
     : 0;
 
-  // Body
-  ctx.fillStyle = "#1e90ff";
-  ctx.fillRect(px + 7, py + 14, 10, 8);
-
-  // Arms (run swing)
+  // Head
   ctx.fillStyle = "#ffd800";
-  const armOffset = player.state === "run"
-    ? Math.sin(frame) * 2
-    : 0;
-  ctx.fillRect(px + 4, py + 15 + armOffset, 3, 6);
-  ctx.fillRect(px + 17, py + 15 - armOffset, 3, 6);
+  ctx.fillRect(px + 3, py - 4 + bob, 18, 18);
 
-  // Legs
-  ctx.fillStyle = "#000";
-  if (player.state === "run") {
-    ctx.fillRect(px + 8, py + 22 + Math.sin(frame)*2, 3, 4);
-    ctx.fillRect(px + 13, py + 22 - Math.sin(frame)*2, 3, 4);
-  } else {
-    ctx.fillRect(px + 8, py + 22, 3, 4);
-    ctx.fillRect(px + 13, py + 22, 3, 4);
-  }
+  ctx.fillStyle = "#e6c200";
+  ctx.fillRect(px + 12, py + 6 + bob, 9, 8);
 
-  // Head (big & round)
-  drawPixelCircle(px + 12, py + 8 + headBob, 6, "#ffd800");
+  ctx.fillStyle = "#ffef66";
+  ctx.fillRect(px + 4, py - 3 + bob, 6, 4);
+
+  ctx.strokeStyle = "#000";
+  ctx.strokeRect(px + 3, py - 4 + bob, 18, 18);
 
   // Face
   ctx.fillStyle = "#000";
-  ctx.fillRect(px + 9, py + 7 + headBob, 1, 1);
-  ctx.fillRect(px + 14, py + 7 + headBob, 1, 1);
-  ctx.fillRect(px + 10, py + 10 + headBob, 5, 1);
+  ctx.fillRect(px + 8,  py + 3 + bob, 2, 2);
+  ctx.fillRect(px + 14, py + 3 + bob, 2, 2);
+  ctx.fillRect(px + 9,  py + 8 + bob, 6, 1);
+  ctx.fillRect(px + 8,  py + 7 + bob, 1, 1);
+  ctx.fillRect(px + 15, py + 7 + bob, 1, 1);
+
+  // Body
+  ctx.fillStyle = "#1e90ff";
+  ctx.fillRect(px + 9, py + 14, 6, 6);
+  ctx.strokeRect(px + 9, py + 14, 6, 6);
+
+  // Arms
+  const swing = player.state === "run" ? Math.sin(frame) * 2 : 0;
+  ctx.fillStyle = "#ffd800";
+  ctx.fillRect(px + 5,  py + 14 + swing, 3, 6);
+  ctx.fillRect(px + 16, py + 14 - swing, 3, 6);
+
+  // Legs
+  ctx.fillStyle = "#000";
+  ctx.fillRect(px + 9,  py + 20 + swing, 2, 4);
+  ctx.fillRect(px + 13, py + 20 - swing, 2, 4);
 
   ctx.restore();
 }
 
-const clouds = [
-  { x: 40, y: 25 },
-  { x: 140, y: 35 },
-  { x: 240, y: 20 }
-];
+/* =====================
+   DRAW WORLD
+   ===================== */
+function drawPlatform(p) {
+  ctx.fillStyle = "#228b22";
+  ctx.fillRect(p.x - camera.x, p.y, p.w, p.h);
+  ctx.fillStyle = "#1b6b1b";
+  ctx.fillRect(p.x - camera.x, p.y, p.w, 4);
+}
+
+function drawCoin(c) {
+  ctx.fillStyle = "#ffd800";
+  ctx.fillRect(c.x - camera.x, c.y, 6, 6);
+  ctx.strokeStyle = "#000";
+  ctx.strokeRect(c.x - camera.x, c.y, 6, 6);
+}
 
 function drawCloud(c) {
   ctx.fillStyle = "#fff";
-  ctx.fillRect(c.x, c.y, 16, 6);
-  ctx.fillRect(c.x + 4, c.y - 4, 12, 6);
-  ctx.fillRect(c.x + 8, c.y + 2, 14, 6);
+  ctx.fillRect(c.x - camera.x * 0.3, c.y, 16, 6);
+  ctx.fillRect(c.x - camera.x * 0.3 + 4, c.y - 4, 12, 6);
 }
 
-function drawGrass() {
-  ctx.fillStyle = "#228b22";
-  ctx.fillRect(0, GROUND_Y, canvas.width, 40);
-  ctx.fillStyle = "#1b6b1b";
-  for (let i = 0; i < canvas.width; i += 4) {
-    ctx.fillRect(i, GROUND_Y - 2, 2, 2);
-  }
-}
-
+/* =====================
+   UPDATE
+   ===================== */
 function update(dt) {
   player.vx = 0;
-
   if (keys["ArrowLeft"] || keys["a"]) {
     player.vx = -1.5;
     player.facing = -1;
@@ -150,8 +184,7 @@ function update(dt) {
     player.vx = 1.5;
     player.facing = 1;
   }
-
-  if ((keys["ArrowUp"] || keys["w"] || keys[" "]) && player.y >= GROUND_Y) {
+  if ((keys[" "] || keys["ArrowUp"]) && player.vy === 0) {
     player.vy = -5;
   }
 
@@ -159,42 +192,72 @@ function update(dt) {
   player.x += player.vx;
   player.y += player.vy;
 
-  if (player.y >= GROUND_Y) {
-    player.y = GROUND_Y;
-    player.vy = 0;
-  }
+  // Collisions
+  platforms.forEach(p => {
+    if (
+      player.x + player.w > p.x &&
+      player.x < p.x + p.w &&
+      player.y <= p.y &&
+      player.y + player.vy >= p.y
+    ) {
+      player.y = p.y;
+      player.vy = 0;
+    }
+  });
 
-  // State machine
-  if (player.y < GROUND_Y) {
-    player.state = "jump";
-  } else if (player.vx !== 0) {
-    player.state = "run";
-  } else {
-    player.state = "idle";
-  }
+  // State
+  player.state =
+    player.vy !== 0 ? "jump" :
+    player.vx !== 0 ? "run" : "idle";
 
-  // Animation timing
+  // Animation
   const anim = animations[player.state];
   player.frameTimer += dt;
-  if (player.frameTimer >= 1000 / anim.fps) {
+  if (player.frameTimer > 1000 / anim.fps) {
     player.frame = (player.frame + 1) % anim.frames;
     player.frameTimer = 0;
   }
 
+  // Coins
+  coins.forEach(c => {
+    if (!c.taken &&
+        player.x < c.x + 6 &&
+        player.x + player.w > c.x &&
+        player.y - player.h < c.y + 6 &&
+        player.y > c.y) {
+      c.taken = true;
+      score++;
+    }
+  });
+
+  // Camera follow
+  camera.x = player.x - 80;
+
   // Clouds
   clouds.forEach(c => {
     c.x -= 0.2;
-    if (c.x < -30) c.x = canvas.width + 30;
+    if (c.x < -50) c.x += 400;
   });
 }
 
+/* =====================
+   DRAW
+   ===================== */
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   clouds.forEach(drawCloud);
-  drawGrass();
+  platforms.forEach(drawPlatform);
+  coins.filter(c => !c.taken).forEach(drawCoin);
   drawNoob(player.frame);
+
+  ctx.fillStyle = "#000";
+  ctx.fillText("STUDS: " + score, 8, 12);
 }
 
+/* =====================
+   LOOP
+   ===================== */
 let last = 0;
 function loop(t) {
   const dt = t - last;
