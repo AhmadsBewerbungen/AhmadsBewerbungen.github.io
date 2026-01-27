@@ -1,162 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Button Game with 20 Levels</title>
-<style>
-  body { margin: 0; overflow: hidden; }
-  canvas { display: block; }
-</style>
-</head>
-<body>
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script>
-  // Variables
-  let scene, camera, renderer;
-  let controls;
-  let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
-  let crouch = false;
-  let raycaster, mouse;
-  let interactableObjects = [];
-  let currentLevel = 1;
-  const totalLevels = 20;
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #87ceeb;
+  font-family: Arial, sans-serif;
+}
 
-  init();
-  animate();
+#crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: black;
+  user-select: none;
+}
 
-  function init() {
-    // Scene setup
-    scene = new THREE.Scene();
-
-    // Camera setup
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 1.6, 5); // typical eye height
-
-    // Renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    // Light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 10, 10);
-    scene.add(directionalLight);
-
-    // Floor
-    const floorGeometry = new THREE.PlaneGeometry(100, 100);
-    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x808080 });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    scene.add(floor);
-
-    // Sample interactable button
-    const buttonGeometry = new THREE.BoxGeometry(1, 0.2, 1);
-    const buttonMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    const button = new THREE.Mesh(buttonGeometry, buttonMaterial);
-    button.position.set(0, 0.1, -5);
-    scene.add(button);
-    interactableObjects.push({ object: button, isButton: true, level: 1 }); // assign level info if needed
-
-    // Event listeners
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
-    window.addEventListener('resize', onWindowResize);
-    document.addEventListener('keydown', handleSpecialKeys);
-    document.addEventListener('click', onMouseClick);
-
-    // Raycaster for interaction
-    raycaster = new THREE.Raycaster();
-
-    // Basic controls for movement
-  }
-
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-
-  function onKeyDown(event) {
-    switch(event.code) {
-      case 'KeyW': moveForward = true; break;
-      case 'KeyS': moveBackward = true; break;
-      case 'KeyA': moveLeft = true; break;
-      case 'KeyD': moveRight = true; break;
-      case 'KeyC': crouch = true; break;
-    }
-  }
-
-  function onKeyUp(event) {
-    switch(event.code) {
-      case 'KeyW': moveForward = false; break;
-      case 'KeyS': moveBackward = false; break;
-      case 'KeyA': moveLeft = false; break;
-      case 'KeyD': moveRight = false; break;
-      case 'KeyC': crouch = false; break;
-    }
-  }
-
-  function handleSpecialKeys(event) {
-    if (event.code === 'KeyP') {
-      // Redirect
-      window.location.href = "https://stsei.de";
-    }
-    if (event.code === 'KeyE') {
-      // Interaction
-      interact();
-    }
-  }
-
-  function onMouseClick() {
-    // Could implement look around or interaction on click
-  }
-
-  function interact() {
-    // Cast ray to detect objects
-    raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-    const intersects = raycaster.intersectObjects(interactableObjects.map(obj => obj.object));
-    if (intersects.length > 0) {
-      const hitObject = intersects[0].object;
-      // Example: check if it's a button
-      const objData = interactableObjects.find(obj => obj.object === hitObject);
-      if (objData && objData.isButton) {
-        // Handle button press
-        alert(`Button pressed on level ${objData.level}`);
-        // Load next level or perform action
-        nextLevel();
-      }
-    }
-  }
-
-  function nextLevel() {
-    if (currentLevel < totalLevels) {
-      currentLevel++;
-      alert(`Loading level ${currentLevel}`);
-      // Load or reset scene for the new level
-      // For simplicity, just resetting button color
-      // In real game, you'd load new scene data
-    } else {
-      alert('Last level reached!');
-    }
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    update();
-    renderer.render(scene, camera);
-  }
-
-  function update() {
-    // Basic movement logic
-    const speed = crouch ? 0.02 : 0.05;
-    if (moveForward) camera.position.z -= speed;
-    if (moveBackward) camera.position.z += speed;
-    if (moveLeft) camera.position.x -= speed;
-    if (moveRight) camera.position.x += speed;
-  }
-</script>
-</body>
-</html>
+#info {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
