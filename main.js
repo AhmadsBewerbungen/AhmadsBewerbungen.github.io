@@ -1,34 +1,42 @@
+console.log("game.js loaded");
+
 const canvas = document.getElementById("game");
+if (!canvas) {
+  alert("Canvas not found!");
+}
+
 const ctx = canvas.getContext("2d");
 
+// CONSTANTS
 const GRAVITY = 0.4;
-const GROUND_Y = 140;
+const GROUND_Y = 130;
 
+// INPUT
 const keys = {};
-addEventListener("keydown", e => keys[e.code] = true);
-addEventListener("keyup", e => keys[e.code] = false);
+window.addEventListener("keydown", e => keys[e.code] = true);
+window.addEventListener("keyup", e => keys[e.code] = false);
 
-let clouds = [
-  { x: 20, y: 20 },
-  { x: 120, y: 35 },
-  { x: 220, y: 25 }
-];
-
+// PLAYER
 const player = {
-  x: 80,
+  x: 160,
   y: GROUND_Y,
   vx: 0,
   vy: 0,
   onGround: true,
-  dir: 1,
-  frame: 0,
-  animTimer: 0,
-  state: "idle" // idle, run, jump
+  dir: 1
 };
 
+// CLOUDS
+const clouds = [
+  { x: 40, y: 30 },
+  { x: 140, y: 20 },
+  { x: 240, y: 35 }
+];
+
+// UPDATE
 function update() {
-  // INPUT
   player.vx = 0;
+
   if (keys["KeyA"]) {
     player.vx = -1.5;
     player.dir = -1;
@@ -43,12 +51,6 @@ function update() {
     player.onGround = false;
   }
 
-  // STATE
-  if (!player.onGround) player.state = "jump";
-  else if (player.vx !== 0) player.state = "run";
-  else player.state = "idle";
-
-  // PHYSICS
   player.vy += GRAVITY;
   player.x += player.vx;
   player.y += player.vy;
@@ -59,27 +61,30 @@ function update() {
     player.onGround = true;
   }
 
-  // ANIMATION
-  player.animTimer++;
-  if (player.animTimer > 4) {
-    player.frame = (player.frame + 1) % 12;
-    player.animTimer = 0;
-  }
-
-  // CLOUDS
   clouds.forEach(c => {
-    c.x -= 0.1;
-    if (c.x < -40) c.x = 340;
+    c.x -= 0.2;
+    if (c.x < -40) c.x = 360;
   });
 }
 
-function drawCloud(x, y) {
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(x, y, 20, 8);
-  ctx.fillRect(x + 6, y - 4, 18, 8);
-}
+// DRAW
+function draw() {
+  // SKY
+  ctx.fillStyle = "#6ec6ff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-function drawPlayer() {
+  // CLOUDS
+  ctx.fillStyle = "#ffffff";
+  clouds.forEach(c => {
+    ctx.fillRect(c.x, c.y, 20, 8);
+    ctx.fillRect(c.x + 6, c.y - 4, 18, 8);
+  });
+
+  // GROUND
+  ctx.fillStyle = "#3fa34d";
+  ctx.fillRect(0, GROUND_Y + 8, canvas.width, canvas.height);
+
+  // PLAYER
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.scale(player.dir, 1);
@@ -101,40 +106,21 @@ function drawPlayer() {
 
   // HANDS
   ctx.fillStyle = "#FFD800";
-  ctx.strokeStyle = "#000";
   ctx.fillRect(-10, -6, 4, 4);
   ctx.fillRect(6, -6, 4, 4);
   ctx.strokeRect(-10, -6, 4, 4);
   ctx.strokeRect(6, -6, 4, 4);
 
-  // LEGS (animated offset)
-  const legOffset = player.state === "run" ? (player.frame % 6 < 3 ? 1 : -1) : 0;
-  ctx.fillRect(-4, 0, 3, 8 + legOffset);
-  ctx.fillRect(1, 0, 3, 8 - legOffset);
-  ctx.strokeRect(-4, 0, 3, 8 + legOffset);
-  ctx.strokeRect(1, 0, 3, 8 - legOffset);
+  // LEGS
+  ctx.fillRect(-4, 0, 3, 8);
+  ctx.fillRect(1, 0, 3, 8);
+  ctx.strokeRect(-4, 0, 3, 8);
+  ctx.strokeRect(1, 0, 3, 8);
 
   ctx.restore();
 }
 
-function draw() {
-  // SKY
-  ctx.fillStyle = "#6ec6ff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // CLOUDS
-  clouds.forEach(c => drawCloud(c.x, c.y));
-
-  // GRASS
-  ctx.fillStyle = "#3fa34d";
-  ctx.fillRect(0, GROUND_Y + 8, canvas.width, canvas.height);
-  for (let i = 0; i < canvas.width; i += 6) {
-    ctx.fillRect(i, GROUND_Y + 4, 2, 4);
-  }
-
-  drawPlayer();
-}
-
+// LOOP
 function loop() {
   update();
   draw();
