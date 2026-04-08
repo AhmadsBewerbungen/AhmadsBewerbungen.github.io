@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="tmsu's executor — keyless, fast, clean.">
+<meta property="og:title" content="tmsu's executor">
+<meta property="og:description" content="keyless · fast · clean">
+<meta property="theme-color" content="#0a0a0a">
+<title>tmsu's executor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;
+  --bg1:#111;
+  --bg2:#161616;
+  --bg3:#1c1c1c;
+  --border:rgba(255,255,255,0.08);
+  --border-hover:rgba(255,255,255,0.15);
+  --border-active:rgba(255,255,255,0.22);
+  --text:#e8e8e8;
+  --text-muted:#666;
+  --text-dim:#3a3a3a;
+  --glass:rgba(255,255,255,0.04);
+  --glass-hover:rgba(255,255,255,0.07);
+  --glass-active:rgba(255,255,255,0.11);
+  --green:#4ade80;
+  --red:#f87171;
+  --yellow:#fbbf24;
+  --blue:#93c5fd;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}
+
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+/* ── TITLEBAR ── */
+.titlebar{
+  height:40px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;
+  background:rgba(255,255,255,0.025);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  user-select:none;
+}
+.titlebar-left{display:flex;align-items:center;gap:8px}
+.wm{display:flex;gap:6px}
+.wm span{width:11px;height:11px;border-radius:50%;cursor:pointer;transition:filter .15s}
+.wm .c{background:#ff5f57}.wm .c:hover{filter:brightness(1.3)}
+.wm .m{background:#febc2e}.wm .m:hover{filter:brightness(1.3)}
+.wm .x{background:#28c840}.wm .x:hover{filter:brightness(1.3)}
+.titlebar-title{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--text-muted);letter-spacing:0.06em}
+.titlebar-right{display:flex;align-items:center;gap:6px}
+.status-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:100px;
+  background:var(--glass);border:1px solid var(--border);
+  font-family:var(--mono);font-size:10px;color:var(--text-muted);
+  transition:all .25s;
+}
+.status-pill.injected{border-color:rgba(74,222,128,0.3);color:var(--green);background:rgba(74,222,128,0.05)}
+.status-pill.error{border-color:rgba(248,113,113,0.3);color:var(--red);background:rgba(248,113,113,0.05)}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ── BODY ── */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.workspace{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:200px;flex-shrink:0;
+  display:flex;flex-direction:column;
+  background:rgba(255,255,255,0.015);
+  border-right:1px solid var(--border);
+  overflow:hidden;
+}
+.sidebar-top{flex:1;overflow-y:auto;padding:8px}
+.sidebar-sect{
+  font-family:var(--mono);font-size:9px;color:var(--text-dim);
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:4px 8px 2px;margin-top:8px
+}
+.nav{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 10px;border-radius:6px;
+  cursor:pointer;color:var(--text-muted);
+  font-family:var(--sans);font-size:12.5px;font-weight:400;
+  border:1px solid transparent;
+  transition:all .15s;position:relative;
+}
+.nav:hover{background:var(--glass-hover);color:var(--text);border-color:var(--border)}
+.nav.active{background:var(--glass-active);color:var(--text);border-color:var(--border-active)}
+.nav svg{width:13px;height:13px;flex-shrink:0;opacity:.7}
+.nav.active svg{opacity:1}
+.scripts-count{
+  margin-left:auto;font-family:var(--mono);font-size:9px;
+  padding:1px 5px;border-radius:3px;
+  background:rgba(255,255,255,0.06);color:var(--text-muted);
+}
+.sidebar-bottom{padding:10px;border-top:1px solid var(--border)}
+.inject-btn{
+  width:100%;padding:8px;border-radius:7px;
+  border:1px solid var(--border);background:var(--glass);
+  color:var(--text-muted);font-family:var(--mono);font-size:11px;
+  cursor:pointer;transition:all .2s;letter-spacing:0.04em;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.inject-btn:hover{background:var(--glass-hover);border-color:var(--border-hover);color:var(--text)}
+.inject-btn.injected{border-color:rgba(74,222,128,0.35);color:var(--green);background:rgba(74,222,128,0.06)}
+.inject-btn.injected:hover{background:rgba(74,222,128,0.1)}
+.inject-btn svg{width:12px;height:12px}
+.ver{font-family:var(--mono);font-size:9px;color:var(--text-dim);text-align:center;margin-top:6px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── TABS ── */
+.tabbar{
+  display:flex;align-items:end;gap:1px;
+  padding:6px 8px 0;
+  background:rgba(255,255,255,0.01);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;overflow-x:auto;
+}
+.tabbar::-webkit-scrollbar{height:0}
+.tab{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px 6px;border-radius:6px 6px 0 0;
+  font-family:var(--mono);font-size:11px;
+  cursor:pointer;color:var(--text-dim);
+  border:1px solid transparent;border-bottom:none;
+  white-space:nowrap;transition:all .15s;
+  position:relative;
+}
+.tab:hover:not(.active){color:var(--text-muted);background:var(--glass)}
+.tab.active{
+  background:var(--bg2);color:var(--text);
+  border-color:var(--border);
+  border-bottom-color:var(--bg2);
+  z-index:1;
+}
+.tab-x{
+  opacity:0;font-size:10px;line-height:1;color:var(--text-dim);
+  transition:opacity .1s;padding:1px 2px;border-radius:2px;
+}
+.tab:hover .tab-x,.tab.active .tab-x{opacity:.6}
+.tab-x:hover{opacity:1!important;color:var(--text)}
+.tab-new{
+  padding:5px 10px;border-radius:6px 6px 0 0;
+  background:transparent;border:1px solid transparent;
+  color:var(--text-dim);font-size:14px;cursor:pointer;
+  transition:all .15s;line-height:1;
+}
+.tab-new:hover{background:var(--glass);color:var(--text-muted);border-color:var(--border)}
+
+/* ── EDITOR ── */
+.editor-panel{display:flex;flex-direction:column;flex:1;overflow:hidden;padding:10px 10px 0}
+.editor-wrap{
+  flex:1;position:relative;
+  border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;background:var(--bg2);
+  min-height:0;
+}
+#monaco-container{
+  width:100%;
+  height:100%;
+}
+
+/* ── ACTIONS ── */
+.actions{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 0;flex-shrink:0;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 13px;border-radius:6px;
+  border:1px solid var(--border);background:var(--glass);
+  color:var(--text-muted);font-family:var(--sans);font-size:12px;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn:hover{background:var(--glass-hover);border-color:var(--border-hover);color:var(--text)}
+.btn:active{background:var(--glass-active);transform:scale(0.97)}
+.btn svg{width:12px;height:12px;flex-shrink:0}
+.btn-exec{
+  background:rgba(255,255,255,0.09);
+  border-color:rgba(255,255,255,0.18);
+  color:var(--text);font-weight:500;
+}
+.btn-exec:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.25)}
+.btn-exec:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-exec:disabled:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.18)}
+.spacer{flex:1}
+.run-status{
+  font-family:var(--mono);font-size:11px;color:var(--text-dim);
+  display:flex;align-items:center;gap:5px;
+}
+
+/* ── CONSOLE ── */
+.console{
+  height:150px;flex-shrink:0;
+  border:1px solid var(--border);border-radius:8px;
+  overflow-y:auto;margin-bottom:10px;
+  background:rgba(0,0,0,0.25);
+}
+.console-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:5px 12px;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+  z-index:1;
+}
+.console-head-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase}
+.console-clear{font-family:var(--mono);font-size:9px;color:var(--text-dim);cursor:pointer;transition:color .15s;border:none;background:none;padding:0}
+.console-clear:hover{color:var(--text-muted)}
+.console-body{padding:6px 0}
+.log{
+  display:flex;align-items:baseline;gap:8px;
+  padding:1px 12px;font-family:var(--mono);font-size:11.5px;line-height:19px;
+}
+.log-ts{color:var(--text-dim);font-size:10px;flex-shrink:0;min-width:44px}
+.log-msg{color:var(--text-muted)}
+.log.info .log-msg{color:var(--blue)}
+.log.success .log-msg{color:var(--green)}
+.log.error .log-msg{color:var(--red)}
+.log.warn .log-msg{color:var(--yellow)}
+.log.out .log-msg{color:var(--text)}
+
+/* ── SCRIPTS PANEL ── */
+#panel-scripts{
+  display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;
+}
+.scripts-search{
+  padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.search-input{
+  width:100%;padding:6px 10px;border-radius:6px;
+  border:1px solid var(--border);background:var(--glass);
+  color:var(--text);font-family:var(--sans);font-size:12px;
+  outline:none;transition:border .15s;
+}
+.search-input:focus{border-color:var(--border-hover)}
+.search-input::placeholder{color:var(--text-dim)}
+.scripts-list{flex:1;overflow-y:auto;padding:6px}
+.script-item{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px;border-radius:7px;
+  border:1px solid var(--border);background:var(--glass);
+  cursor:pointer;margin-bottom:4px;transition:all .15s;
+}
+.script-item:hover{background:var(--glass-hover);border-color:var(--border-hover)}
+.script-item-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--text-dim)}
+.script-item-info{flex:1;min-width:0}
+.script-item-name{font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.script-item-meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:1px}
+.script-item-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.script-item:hover .script-item-actions{opacity:1}
+.icon-btn{
+  width:24px;height:24px;border-radius:5px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.icon-btn:hover{background:var(--glass-hover);color:var(--text)}
+.icon-btn.danger:hover{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.2)}
+.icon-btn svg{width:11px;height:11px}
+.scripts-footer{
+  padding:8px 10px;border-top:1px solid var(--border);
+  display:flex;gap:6px;flex-shrink:0;
+}
+.empty-state{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:6px;
+}
+.empty-state p{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+
+/* ── SETTINGS PANEL ── */
+#panel-settings{display:none;flex:1;flex-direction:column;overflow:hidden}
+.settings-body{flex:1;overflow-y:auto;padding:12px 14px}
+.setting-group{margin-bottom:20px}
+.setting-group-title{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.setting-row:last-child{border-bottom:none}
+.setting-text .label{font-family:var(--sans);font-size:12.5px;color:var(--text)}
+.setting-text .desc{font-family:var(--sans);font-size:11px;color:var(--text-dim);margin-top:2px}
+.toggle{position:relative;width:30px;height:17px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.tslider{
+  position:absolute;inset:0;
+  background:rgba(255,255,255,0.08);border-radius:9px;
+  border:1px solid var(--border);cursor:pointer;transition:.2s;
+}
+.tslider::before{
+  content:'';position:absolute;
+  width:11px;height:11px;
+  left:2px;top:2px;
+  background:#555;border-radius:50%;transition:.2s;
+}
+.toggle input:checked~.tslider{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3)}
+.toggle input:checked~.tslider::before{transform:translateX(13px);background:var(--green)}
+
+/* ── PANELS visibility ── */
+#panel-editor{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.panel-hidden{display:none!important}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:6px;z-index:100;pointer-events:none}
+.toast{
+  padding:8px 14px;border-radius:7px;
+  border:1px solid var(--border);background:rgba(20,20,20,0.92);
+  font-family:var(--mono);font-size:11px;color:var(--text-muted);
+  backdrop-filter:blur(12px);
+  transform:translateX(16px);opacity:0;
+  animation:toastIn .25s forwards,toastOut .25s forwards .9s;
+  pointer-events:none;
+}
+.toast.success{color:var(--green);border-color:rgba(74,222,128,0.2)}
+.toast.error{color:var(--red);border-color:rgba(248,113,113,0.2)}
+@keyframes toastIn{to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{to{transform:translateX(16px);opacity:0}}
+
+/* ── CLIENTS PANEL ── */
+#panel-clients{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.clients-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.clients-title{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase}
+.clients-list{flex:1;overflow-y:auto;padding:8px}
+.client-card{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;
+  border:1px solid var(--border);background:var(--glass);
+  margin-bottom:6px;transition:all .15s;position:relative;
+}
+.client-card:hover{background:var(--glass-hover);border-color:var(--border-hover)}
+.client-avatar{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;color:var(--text-muted);
+  overflow:hidden;
+}
+.client-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.client-info{flex:1;min-width:0}
+.client-name{font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-meta{display:flex;align-items:center;gap:6px;margin-top:2px}
+.client-uid{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+.client-badge{
+  font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;
+  background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);
+  color:var(--green);
+}
+.client-badge.away{background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.2);color:var(--yellow)}
+.client-online{
+  width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;
+  box-shadow:0 0 6px rgba(74,222,128,0.5);
+}
+.client-online.away{background:var(--yellow);box-shadow:0 0 6px rgba(251,191,36,0.5)}
+.client-disconnect{
+  opacity:0;transition:opacity .15s;
+  width:22px;height:22px;border-radius:5px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.client-card:hover .client-disconnect{opacity:1}
+.client-disconnect:hover{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.2)}
+.client-disconnect svg{width:10px;height:10px}
+.clients-empty{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:6px;padding:20px;
+}
+.clients-empty p{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:center}
+.clients-empty .sub{font-size:10px;color:var(--text-dim);opacity:.6}
+
+/* Monaco loader overlay */
+.monaco-loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:var(--bg2);z-index:10;
+  font-family:var(--mono);font-size:11px;color:var(--text-dim);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TITLEBAR -->
+  <div class="titlebar">
+    <div class="titlebar-left">
+      <div class="wm">
+        <span class="c" title="close"></span>
+        <span class="m" title="minimize"></span>
+        <span class="x" title="maximize"></span>
+      </div>
+    </div>
+    <div class="titlebar-title">tmsu's executor</div>
+    <div class="titlebar-right">
+      <div class="status-pill" id="statusPill">
+        <span class="dot"></span>
+        <span id="statusLabel">not injected</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-sect">workspace</div>
+        <div class="nav active" id="nav-editor" onclick="switchView('editor')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Editor
+        </div>
+        <div class="nav" id="nav-scripts" onclick="switchView('scripts')">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+          Scripts
+          <span class="scripts-count" id="scriptsCount">0</span>
+        </div>
+        <div class="nav" id="nav-clients" onclick="switchView('clients')">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 13c0-2.5 2-4 5-4s5 1.5 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="5" r="1.8" stroke="currentColor" stroke-width="1.1"/><path d="M14 13c0-1.8-1-3-2.8-3.3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+          Clients
+          <span class="scripts-count" id="clientsCount">0</span>
+        </div>
+        <div class="nav" id="nav-settings" onclick="switchView('settings')">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Settings
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="inject-btn" id="injectBtn" onclick="toggleInject()">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M3 7l5-5 5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="injectBtnLabel">inject</span>
+        </button>
+        <div class="ver">v3.1.0 — keyless</div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- ═══ EDITOR PANEL ═══ -->
+      <div id="panel-editor">
+
+        <!-- TABS -->
+        <div class="tabbar" id="tabbar">
+          <button class="tab-new" onclick="addTab()" title="new tab">+</button>
+        </div>
+
+        <!-- EDITOR -->
+        <div class="editor-panel">
+          <div class="editor-wrap">
+            <div id="monaco-loading" class="monaco-loading">loading editor...</div>
+            <div id="monaco-container"></div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="actions">
+            <button class="btn" onclick="clearEditor()" title="clear">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Clear
+            </button>
+            <button class="btn" onclick="copyScript()" title="copy">
+              <svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 11V3h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Copy
+            </button>
+            <button class="btn" onclick="saveScript()" title="save script">
+              <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 2v5l2-1.5L10 7V2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Save
+            </button>
+            <div class="spacer"></div>
+            <div class="run-status" id="runStatus"></div>
+            <button class="btn btn-exec" id="execBtn" onclick="executeScript()">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M5 3l8 5-8 5V3z" fill="currentColor"/></svg>
+              Execute
+            </button>
+          </div>
+
+          <!-- CONSOLE -->
+          <div class="console" id="consoleWrap">
+            <div class="console-head">
+              <span class="console-head-label">output</span>
+              <button class="console-clear" onclick="clearConsole()">clear</button>
+            </div>
+            <div class="console-body" id="consoleBody"></div>
+          </div>
+        </div>
+      </div><!-- /panel-editor -->
+
+      <!-- ═══ SCRIPTS PANEL ═══ -->
+      <div id="panel-scripts">
+        <div class="scripts-search">
+          <input class="search-input" id="searchInput" type="text" placeholder="search scripts..." oninput="filterScripts()">
+        </div>
+        <div class="scripts-list" id="scriptsList"></div>
+        <div class="scripts-footer">
+          <button class="btn" style="flex:1" onclick="saveCurrentToLib()">Save current script</button>
+          <button class="btn" style="color:var(--red);border-color:rgba(248,113,113,0.15)" onclick="clearAllScripts()">Clear all</button>
+        </div>
+      </div><!-- /panel-scripts -->
+
+      <!-- ═══ CLIENTS PANEL ═══ -->
+      <div id="panel-clients">
+        <div class="clients-header">
+          <span class="clients-title">connected clients</span>
+          <button class="btn" style="font-size:10px;padding:3px 10px" onclick="addMockClient()">+ simulate</button>
+        </div>
+        <div class="clients-list" id="clientsList"></div>
+      </div><!-- /panel-clients -->
+
+      <!-- ═══ SETTINGS PANEL ═══ -->
+      <div id="panel-settings">
+        <div class="settings-body">
+          <div class="setting-group">
+            <div class="setting-group-title">editor</div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">Line numbers</div>
+                <div class="desc">Show line numbers in the editor gutter</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-linenums" checked onchange="applySettings()"><span class="tslider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">Minimap</div>
+                <div class="desc">Show code minimap on the right side</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-minimap" onchange="applySettings()"><span class="tslider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">Word wrap</div>
+                <div class="desc">Wrap long lines in the editor</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-wordwrap" onchange="applySettings()"><span class="tslider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">Script persistence</div>
+                <div class="desc">Remember editor content between sessions</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-persist" checked onchange="applySettings()"><span class="tslider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">Console output</div>
+                <div class="desc">Show execution logs</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-console" checked onchange="applySettings()"><span class="tslider"></span></label>
+            </div>
+          </div>
+          <div class="setting-group">
+            <div class="setting-group-title">execution</div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">Require injection</div>
+                <div class="desc">Block execute if not injected</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-reqinject" checked onchange="applySettings()"><span class="tslider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">Toast notifications</div>
+                <div class="desc">Show status popups on actions</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-toast" checked onchange="applySettings()"><span class="tslider"></span></label>
+            </div>
+          </div>
+          <div class="setting-group">
+            <div class="setting-group-title">about</div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="label">tmsu's executor (web)</div>
+                <div class="desc">v3.1.0 — keyless · fast · clean</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /panel-settings -->
+
+    </div><!-- /main -->
+  </div><!-- /workspace -->
+</div><!-- /app -->
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Monaco Editor CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<script>
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let injected = false;
+let activeView = 'editor';
+let activeTabId = null;
+let tabCounter = 0;
+let tabs = {};
+let scripts = [];
+let monacoEditor = null;
+let monacoReady = false;
+let settings = {
+  linenums: true,
+  minimap: false,
+  wordwrap: false,
+  persist: true,
+  console: true,
+  reqinject: true,
+  toast: true,
+};
+
+const consoleBody = document.getElementById('consoleBody');
+const execBtn = document.getElementById('execBtn');
+const tabbar = document.getElementById('tabbar');
+
+// ══════════════════════════════════════════
+//  MONACO INIT
+// ══════════════════════════════════════════
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+require(['vs/editor/editor.main'], function() {
+  // Define a dark theme matching h.html palette
+  monaco.editor.defineTheme('tmsu-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'comment', foreground: '3a3a3a', fontStyle: 'italic' },
+      { token: 'keyword', foreground: '93c5fd' },
+      { token: 'string', foreground: '4ade80' },
+      { token: 'number', foreground: 'fbbf24' },
+      { token: 'identifier', foreground: 'e8e8e8' },
+      { token: 'type', foreground: 'f87171' },
+    ],
+    colors: {
+      'editor.background': '#161616',
+      'editor.foreground': '#e8e8e8',
+      'editorLineNumber.foreground': '#3a3a3a',
+      'editorLineNumber.activeForeground': '#666',
+      'editor.lineHighlightBackground': '#1c1c1c',
+      'editor.selectionBackground': '#ffffff18',
+      'editor.inactiveSelectionBackground': '#ffffff0d',
+      'editorCursor.foreground': '#ffffff',
+      'editorWhitespace.foreground': '#3a3a3a',
+      'editorIndentGuide.background': '#1c1c1c',
+      'editorIndentGuide.activeBackground': '#3a3a3a',
+      'editor.findMatchBackground': '#fbbf2430',
+      'editor.findMatchHighlightBackground': '#fbbf2418',
+      'scrollbarSlider.background': '#ffffff1a',
+      'scrollbarSlider.hoverBackground': '#ffffff2a',
+      'scrollbarSlider.activeBackground': '#ffffff3a',
+    }
+  });
+
+  monacoEditor = monaco.editor.create(document.getElementById('monaco-container'), {
+    value: '',
+    language: 'lua',
+    theme: 'tmsu-dark',
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 12.5,
+    lineHeight: 20,
+    lineNumbers: settings.linenums ? 'on' : 'off',
+    minimap: { enabled: settings.minimap },
+    wordWrap: settings.wordwrap ? 'on' : 'off',
+    scrollBeyondLastLine: false,
+    renderLineHighlight: 'line',
+    cursorBlinking: 'smooth',
+    cursorSmoothCaretAnimation: 'on',
+    smoothScrolling: true,
+    padding: { top: 12, bottom: 12 },
+    scrollbar: {
+      verticalScrollbarSize: 3,
+      horizontalScrollbarSize: 3,
+    },
+    overviewRulerBorder: false,
+    overviewRulerLanes: 0,
+    hideCursorInOverviewRuler: true,
+    renderLineHighlightOnlyWhenFocus: false,
+    folding: true,
+    bracketPairColorization: { enabled: true },
+    suggest: { showKeywords: true },
+    quickSuggestions: true,
+    tabSize: 2,
+    placeholder: '-- paste or write your script here...',
+  });
+
+  // Sync editor content to tabs
+  monacoEditor.onDidChangeModelContent(() => {
+    if (activeTabId) {
+      tabs[activeTabId].content = monacoEditor.getValue();
+      if (settings.persist) {
+        localStorage.setItem('tmsu_content_' + activeTabId, monacoEditor.getValue());
+      }
+    }
+  });
+
+  monacoReady = true;
+  document.getElementById('monaco-loading').style.display = 'none';
+
+  // Boot after monaco ready
+  init();
+});
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+function init() {
+  loadSettings();
+  loadScripts();
+  addTab('untitled_1.lua', '');
+  addLog('executor initialized', 'info');
+  addLog('awaiting injection...', 'out');
+  updateExecBtn();
+  renderScripts();
+  if (settings.persist) loadPersisted();
+}
+
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+function addTab(name, content) {
+  tabCounter++;
+  const id = 'tab_' + tabCounter;
+  name = name || `script_${tabCounter}.lua`;
+  content = content !== undefined ? content : '';
+  tabs[id] = { name, content };
+  renderTabs();
+  switchTab(id);
+  return id;
+}
+
+function renderTabs() {
+  const addBtn = tabbar.querySelector('.tab-new');
+  tabbar.querySelectorAll('.tab').forEach(t => t.remove());
+  Object.entries(tabs).forEach(([id, tab]) => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (id === activeTabId ? ' active' : '');
+    el.dataset.id = id;
+    el.innerHTML = `<span class="tab-name">${tab.name}</span><span class="tab-x" onclick="closeTab(event,'${id}')">✕</span>`;
+    el.onclick = (e) => { if (!e.target.classList.contains('tab-x')) switchTab(id); };
+    tabbar.insertBefore(el, addBtn);
+  });
+}
+
+function switchTab(id) {
+  if (activeTabId && monacoReady) tabs[activeTabId].content = monacoEditor.getValue();
+  activeTabId = id;
+  if (monacoReady) {
+    monacoEditor.setValue(tabs[id].content);
+    monacoEditor.setScrollPosition({ scrollTop: 0 });
+  }
+  renderTabs();
+}
+
+function closeTab(e, id) {
+  e.stopPropagation();
+  const ids = Object.keys(tabs);
+  if (ids.length === 1) {
+    tabs[id].content = '';
+    if (monacoReady) monacoEditor.setValue('');
+    return;
+  }
+  if (activeTabId === id) {
+    const idx = ids.indexOf(id);
+    const nextId = ids[idx > 0 ? idx - 1 : 1];
+    delete tabs[id];
+    switchTab(nextId);
+  } else {
+    delete tabs[id];
+    renderTabs();
+  }
+}
+
+// ══════════════════════════════════════════
+//  EDITOR HELPERS
+// ══════════════════════════════════════════
+function getEditorValue() {
+  return monacoReady ? monacoEditor.getValue() : '';
+}
+
+function setEditorValue(val) {
+  if (monacoReady) monacoEditor.setValue(val);
+  if (activeTabId) tabs[activeTabId].content = val;
+}
+
+function clearEditor() {
+  setEditorValue('');
+  addLog('editor cleared', 'out');
+}
+
+function copyScript() {
+  const text = getEditorValue().trim();
+  if (!text) { toast('nothing to copy', 'error'); return; }
+  navigator.clipboard.writeText(text).then(() => {
+    toast('copied to clipboard', 'success');
+    addLog('script copied to clipboard', 'out');
+  }).catch(() => toast('clipboard access denied', 'error'));
+}
+
+function saveScript() {
+  const content = getEditorValue().trim();
+  if (!content) { toast('nothing to save', 'error'); return; }
+  const name = (activeTabId && tabs[activeTabId]) ? tabs[activeTabId].name : `script_${Date.now()}.lua`;
+  const existing = scripts.findIndex(s => s.name === name);
+  if (existing >= 0) {
+    scripts[existing].content = content;
+    toast('script updated', 'success');
+    addLog(`updated "${name}"`, 'success');
+  } else {
+    scripts.push({ id: 'sc_' + Date.now(), name, content, saved: new Date().toISOString() });
+    toast(`saved "${name}"`, 'success');
+    addLog(`saved "${name}" to library`, 'success');
+  }
+  persistScripts();
+  renderScripts();
+  updateScriptsCount();
+}
+
+// ══════════════════════════════════════════
+//  EXECUTE
+// ══════════════════════════════════════════
+function executeScript() {
+  if (settings.reqinject && !injected) {
+    toast('not injected', 'error');
+    addLog('execute failed — not injected', 'error');
+    return;
+  }
+  const script = getEditorValue().trim();
+  if (!script) { toast('script is empty', 'error'); addLog('execute failed — empty script', 'warn'); return; }
+
+  execBtn.disabled = true;
+  setRunStatus('executing...', '#fbbf24');
+  addLog('executing script...', 'info');
+
+  setTimeout(() => {
+    const lineCount = script.split('\n').length;
+    execBtn.disabled = false;
+    addLog(`executed — ${lineCount} line${lineCount !== 1 ? 's' : ''}`, 'success');
+    setRunStatus(`${lineCount} lines ✓`, '#4ade80');
+    toast('executed', 'success');
+    setTimeout(() => setRunStatus('', ''), 3000);
+  }, 200 + Math.random() * 150);
+}
+
+function setRunStatus(msg, color) {
+  const el = document.getElementById('runStatus');
+  el.textContent = msg;
+  el.style.color = color;
+}
+
+function updateExecBtn() {
+  execBtn.style.opacity = (settings.reqinject && !injected) ? '0.45' : '1';
+}
+
+// ══════════════════════════════════════════
+//  INJECT
+// ══════════════════════════════════════════
+function toggleInject() {
+  injected = !injected;
+  const btn = document.getElementById('injectBtn');
+  const label = document.getElementById('injectBtnLabel');
+  const pill = document.getElementById('statusPill');
+  const pillLabel = document.getElementById('statusLabel');
+
+  if (injected) {
+    btn.classList.add('injected');
+    label.textContent = 'injected ✓';
+    pill.classList.add('injected'); pill.classList.remove('error');
+    pillLabel.textContent = 'injected';
+    addLog('injection successful', 'success');
+    toast('injected', 'success');
+  } else {
+    btn.classList.remove('injected');
+    label.textContent = 'inject';
+    pill.classList.remove('injected'); pill.classList.add('error');
+    pillLabel.textContent = 'not injected';
+    addLog('detached', 'warn');
+    toast('detached', 'error');
+    setTimeout(() => { pill.classList.remove('error'); }, 2000);
+  }
+  updateExecBtn();
+}
+
+// ══════════════════════════════════════════
+//  CONSOLE
+// ══════════════════════════════════════════
+function addLog(msg, type = 'out') {
+  if (!settings.console) return;
+  const row = document.createElement('div');
+  row.className = `log ${type}`;
+  const now = new Date();
+  const ts = now.getHours().toString().padStart(2,'0') + ':' +
+             now.getMinutes().toString().padStart(2,'0') + ':' +
+             now.getSeconds().toString().padStart(2,'0');
+  row.innerHTML = `<span class="log-ts">${ts}</span><span class="log-msg">${escHtml(msg)}</span>`;
+  consoleBody.appendChild(row);
+  const wrap = document.getElementById('consoleWrap');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function clearConsole() { consoleBody.innerHTML = ''; addLog('console cleared', 'out'); }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ══════════════════════════════════════════
+//  SCRIPTS LIBRARY
+// ══════════════════════════════════════════
+function renderScripts(filter) {
+  const list = document.getElementById('scriptsList');
+  const filtered = filter
+    ? scripts.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()))
+    : scripts;
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><p>no scripts saved</p></div>`;
+    return;
+  }
+  list.innerHTML = '';
+  filtered.forEach(sc => {
+    const d = document.createElement('div');
+    d.className = 'script-item';
+    const lines = sc.content.split('\n').length;
+    const saved = new Date(sc.saved);
+    const ago = timeAgo(saved);
+    d.innerHTML = `
+      <div class="script-item-dot"></div>
+      <div class="script-item-info">
+        <div class="script-item-name">${escHtml(sc.name)}</div>
+        <div class="script-item-meta">${lines} line${lines!==1?'s':''} · ${ago}</div>
+      </div>
+      <div class="script-item-actions">
+        <button class="icon-btn" title="load" onclick="loadScript('${sc.id}')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn danger" title="delete" onclick="deleteScript('${sc.id}')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M4 5h8M6 5V4h4v1M7 8v4M9 8v4M5 5l.5 7h5l.5-7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+function loadScript(id) {
+  const sc = scripts.find(s => s.id === id);
+  if (!sc) return;
+  setEditorValue(sc.content);
+  switchView('editor');
+  addLog(`loaded "${sc.name}"`, 'info');
+  toast(`loaded "${sc.name}"`, 'success');
+}
+
+function deleteScript(id) {
+  const sc = scripts.find(s => s.id === id);
+  if (!sc) return;
+  scripts = scripts.filter(s => s.id !== id);
+  persistScripts();
+  renderScripts(document.getElementById('searchInput').value);
+  updateScriptsCount();
+  addLog(`deleted "${sc.name}"`, 'warn');
+}
+
+function saveCurrentToLib() {
+  saveScript();
+  switchView('editor');
+}
+
+function clearAllScripts() {
+  if (scripts.length === 0) { toast('no scripts to clear', 'error'); return; }
+  scripts = [];
+  persistScripts();
+  renderScripts();
+  updateScriptsCount();
+  addLog('all scripts cleared', 'warn');
+  toast('library cleared', 'error');
+}
+
+function filterScripts() {
+  renderScripts(document.getElementById('searchInput').value);
+}
+
+function updateScriptsCount() {
+  document.getElementById('scriptsCount').textContent = scripts.length;
+}
+
+function timeAgo(date) {
+  const diff = Date.now() - date;
+  if (diff < 60000) return 'just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return Math.floor(diff/86400000) + 'd ago';
+}
+
+// ══════════════════════════════════════════
+//  NAV / VIEW SWITCHING
+// ══════════════════════════════════════════
+function switchView(view) {
+  activeView = view;
+  ['editor','scripts','settings','clients'].forEach(v => {
+    document.getElementById('nav-' + v).classList.toggle('active', v === view);
+    const panel = document.getElementById('panel-' + v);
+    panel.style.display = v === view ? 'flex' : 'none';
+    panel.style.flexDirection = 'column';
+  });
+  if (view === 'editor') {
+    document.getElementById('panel-editor').style.flex = '1';
+    // Trigger Monaco layout recalc
+    if (monacoReady) setTimeout(() => monacoEditor.layout(), 10);
+  }
+  if (view === 'scripts') filterScripts();
+}
+
+// ══════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem('tmsu_settings') || '{}');
+    Object.assign(settings, s);
+  } catch {}
+  document.getElementById('s-linenums').checked = settings.linenums;
+  document.getElementById('s-minimap').checked = settings.minimap;
+  document.getElementById('s-wordwrap').checked = settings.wordwrap;
+  document.getElementById('s-persist').checked = settings.persist;
+  document.getElementById('s-console').checked = settings.console;
+  document.getElementById('s-reqinject').checked = settings.reqinject;
+  document.getElementById('s-toast').checked = settings.toast;
+  applySettings(false);
+}
+
+function applySettings(save = true) {
+  settings.linenums = document.getElementById('s-linenums').checked;
+  settings.minimap = document.getElementById('s-minimap').checked;
+  settings.wordwrap = document.getElementById('s-wordwrap').checked;
+  settings.persist = document.getElementById('s-persist').checked;
+  settings.console = document.getElementById('s-console').checked;
+  settings.reqinject = document.getElementById('s-reqinject').checked;
+  settings.toast = document.getElementById('s-toast').checked;
+
+  if (monacoReady) {
+    monacoEditor.updateOptions({
+      lineNumbers: settings.linenums ? 'on' : 'off',
+      minimap: { enabled: settings.minimap },
+      wordWrap: settings.wordwrap ? 'on' : 'off',
+    });
+  }
+
+  document.getElementById('consoleWrap').style.display = settings.console ? 'block' : 'none';
+  updateExecBtn();
+  if (save) localStorage.setItem('tmsu_settings', JSON.stringify(settings));
+}
+
+// ══════════════════════════════════════════
+//  PERSISTENCE
+// ══════════════════════════════════════════
+function loadPersisted() {
+  const saved = localStorage.getItem('tmsu_content_' + activeTabId);
+  if (saved) setEditorValue(saved);
+}
+
+function persistScripts() {
+  localStorage.setItem('tmsu_scripts', JSON.stringify(scripts));
+}
+
+function loadScripts() {
+  try { scripts = JSON.parse(localStorage.getItem('tmsu_scripts') || '[]'); } catch { scripts = []; }
+  updateScriptsCount();
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function toast(msg, type = '') {
+  if (!settings.toast) return;
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+// ══════════════════════════════════════════
+//  CLIENTS
+// ══════════════════════════════════════════
+let clients = [];
+
+const MOCK_NAMES = ['builderman','Shedletsky','Telamon','corecii','Litozinnamon','Rukiryo','AxisAngle','Quenty','SolarCrane','xXBladeXx','NexusPlayer','voidage'];
+const MOCK_AVATARS = [
+  'https://www.gravatar.com/avatar/1?d=identicon&s=64',
+  'https://www.gravatar.com/avatar/2?d=identicon&s=64',
+  'https://www.gravatar.com/avatar/3?d=identicon&s=64',
+  'https://www.gravatar.com/avatar/4?d=identicon&s=64',
+  'https://www.gravatar.com/avatar/5?d=identicon&s=64',
+];
+
+function addMockClient() {
+  const name = MOCK_NAMES[Math.floor(Math.random() * MOCK_NAMES.length)];
+  const uid = Math.floor(100000000 + Math.random() * 900000000);
+  const away = Math.random() < 0.2;
+  const avatarIdx = Math.floor(Math.random() * MOCK_AVATARS.length);
+  clients.push({
+    id: 'cl_' + Date.now(),
+    name,
+    uid,
+    avatar: MOCK_AVATARS[avatarIdx],
+    status: away ? 'away' : 'online',
+    connectedAt: new Date().toISOString(),
+  });
+  renderClients();
+  updateClientsCount();
+  addLog(`client connected: ${name} (${uid})`, 'success');
+  toast(`${name} connected`, 'success');
+}
+
+function disconnectClient(id) {
+  const cl = clients.find(c => c.id === id);
+  if (!cl) return;
+  clients = clients.filter(c => c.id !== id);
+  renderClients();
+  updateClientsCount();
+  addLog(`client disconnected: ${cl.name}`, 'warn');
+  toast(`${cl.name} disconnected`, 'error');
+}
+
+function renderClients() {
+  const list = document.getElementById('clientsList');
+  if (clients.length === 0) {
+    list.innerHTML = `<div class="clients-empty"><p>no clients connected</p><p class="sub">waiting for injection...</p></div>`;
+    return;
+  }
+  list.innerHTML = '';
+  clients.forEach(cl => {
+    const ago = timeAgo(new Date(cl.connectedAt));
+    const card = document.createElement('div');
+    card.className = 'client-card';
+    card.innerHTML = `
+      <div class="client-avatar">
+        <img src="${cl.avatar}" alt="${cl.name}" onerror="this.parentElement.textContent='${cl.name[0].toUpperCase()}'">
+      </div>
+      <div class="client-info">
+        <div class="client-name">${escHtml(cl.name)}</div>
+        <div class="client-meta">
+          <span class="client-uid">#${cl.uid}</span>
+          <span class="client-badge ${cl.status === 'away' ? 'away' : ''}">${cl.status}</span>
+        </div>
+      </div>
+      <div class="client-online ${cl.status === 'away' ? 'away' : ''}"></div>
+      <button class="client-disconnect" title="disconnect" onclick="disconnectClient('${cl.id}')">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </button>`;
+    list.appendChild(card);
+  });
+}
+
+function updateClientsCount() {
+  document.getElementById('clientsCount').textContent = clients.length;
+}
+
+// ══════════════════════════════════════════
+//  RESIZE OBSERVER
+// ══════════════════════════════════════════
+window.addEventListener('resize', () => {
+  if (monacoReady) monacoEditor.layout();
+});
+
+// Init panels (show editor, hide others)
+window.addEventListener('DOMContentLoaded', () => {
+  ['scripts','settings','clients'].forEach(v => {
+    document.getElementById('panel-' + v).style.display = 'none';
+  });
+  renderClients();
+  document.getElementById('panel-editor').style.display = 'flex';
+  document.getElementById('panel-editor').style.flex = '1';
+});
+</script>
+</body>
+</html>
