@@ -7,13 +7,10 @@
 </head>
 <body>
 
-<div id="boot-screen">Initializing system...</div>
-
-<div id="desktop" class="hidden">
-  
 <img id="bg-img" src="assets/windows_background.jpg">
 
-  <!-- ICONS -->
+<div id="desktop">
+
   <div class="icon" data-app="explorer">
     <img src="assets/folder.png">
     <span>Files</span>
@@ -24,23 +21,17 @@
     <span>Settings</span>
   </div>
 
-  <!-- WINDOWS -->
   <div id="windows"></div>
 
-  <!-- TASKBAR -->
   <div id="taskbar">
     <button id="start-btn">Start</button>
     <div id="clock"></div>
   </div>
 
-  <!-- START MENU -->
   <div id="start-menu" class="hidden">
     <div data-app="explorer">File Explorer</div>
     <div data-app="settings">Settings</div>
   </div>
-
-  <!-- CRT -->
-  <div id="crt"></div>
 
 </div>
 
