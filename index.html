@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>PetAyman</title>
+  <title>Pet Ayman</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<img id="bg-img" src="assets/windows_background.jpg">
-
 <div id="desktop">
 
-  <div id="icons">
+  <!-- BACKGROUND -->
+  <div id="background"></div>
 
+  <!-- ICONS -->
+  <div id="icons">
     <div class="icon" data-app="explorer">
       <img src="assets/folder.png">
       <span>Files</span>
@@ -22,16 +23,18 @@
       <img src="assets/Screenshot_2026-04-10_210544-removebg-preview.png">
       <span>Settings</span>
     </div>
-
   </div>
 
+  <!-- WINDOWS -->
   <div id="windows"></div>
 
+  <!-- TASKBAR -->
   <div id="taskbar">
     <button id="start-btn">Start</button>
     <div id="clock"></div>
   </div>
 
+  <!-- START MENU -->
   <div id="start-menu" class="hidden">
     <div data-app="explorer">File Explorer</div>
     <div data-app="settings">Settings</div>
