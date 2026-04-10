@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>System Interface</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="boot-screen">Initializing system...</div>
+
+<div id="desktop" class="hidden">
+  <div id="wallpaper"></div>
+
+  <!-- Icons -->
+  <div class="icon" data-app="explorer">📁 Files</div>
+  <div class="icon" data-app="chat">💬 Assistant</div>
+  <div class="icon" data-app="settings">⚙ Settings</div>
+
+  <!-- Windows container -->
+  <div id="windows"></div>
+
+  <!-- Taskbar -->
+  <div id="taskbar">
+    <button id="start-btn">Start</button>
+    <div id="clock"></div>
+  </div>
+
+  <!-- Start Menu -->
+  <div id="start-menu" class="hidden">
+    <div data-app="explorer">File Explorer</div>
+    <div data-app="chat">Assistant</div>
+    <div data-app="settings">Settings</div>
+  </div>
+
+  <!-- CRT overlay -->
+  <div id="crt"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
