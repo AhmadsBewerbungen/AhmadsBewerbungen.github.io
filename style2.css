@@ -9,14 +9,17 @@ html, body {
   background: black;
 }
 
-/* BACKGROUND */
+/* BACKGROUND (FIXED ZOOM) */
 #bg-img {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  object-fit: cover;
+
+  object-fit: contain; /* 🔥 THIS FIXES ZOOM */
+  background-color: black; /* fills empty space */
+
   z-index: -1;
 }
 
@@ -37,37 +40,37 @@ html, body {
   gap: 30px;
 }
 
-/* ICONS (BIGGER + CLEANER) */
+/* ICONS (MUCH BIGGER) */
 .icon {
-  width: 110px;
+  width: 130px;
   text-align: center;
   color: white;
   cursor: pointer;
 }
 
-/* 🔥 BIGGER ICON IMAGES */
+/* BIG ICONS */
 .icon img {
-  width: 80px;
-  height: 80px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
   display: block;
   margin: 0 auto;
 }
 
-/* 🔥 BETTER TEXT */
+/* TEXT (BETTER FONT) */
 .icon span {
   display: block;
-  margin-top: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-shadow: 0 0 6px rgba(0,0,0,0.9);
 }
 
 /* WINDOWS */
 .window {
   position: absolute;
-  width: 320px;
-  height: 220px;
+  width: 340px;
+  height: 240px;
   background: #e4e4e4;
   border: 2px solid #444;
   z-index: 50;
@@ -80,7 +83,6 @@ html, body {
   cursor: move;
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
 }
 
 /* TASKBAR */
@@ -111,7 +113,6 @@ html, body {
   color: white;
   padding: 6px 14px;
   cursor: pointer;
-  font-weight: 500;
 }
 
 #start-btn:hover {
@@ -131,17 +132,6 @@ html, body {
   background: #2b2b2b;
   padding: 12px;
   z-index: 200;
-  min-width: 150px;
-}
-
-#start-menu div {
-  padding: 6px;
-  cursor: pointer;
-  color: white;
-}
-
-#start-menu div:hover {
-  background: #444;
 }
 
 /* HIDDEN */
