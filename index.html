@@ -4,39 +4,44 @@
   <meta charset="UTF-8" />
   <title>Pet Ayman</title>
 
-  <!-- CACHE BUSTING -->
-  <link rel="stylesheet" href="style3.css?v=1" />
+  <!-- CACHE FIX -->
+  <link rel="stylesheet" href="style3.css?v=2" />
 </head>
 <body>
 
-<!-- BACKGROUND (REQUIRED) -->
+<!-- BACKGROUND -->
 <img id="bg-img" src="assets/windows_background.jpg">
 
+<!-- DESKTOP -->
 <div id="desktop">
 
+  <!-- ICONS -->
   <div id="icons">
 
-    <!-- BIG FILE ICON -->
+    <!-- FILES (BIGGER) -->
     <div class="icon big" data-app="explorer">
-      <img src="assets/folder.png">
+      <img src="assets/folder.png" draggable="false">
       <span>Files</span>
     </div>
 
-    <!-- NORMAL ICON -->
+    <!-- SETTINGS -->
     <div class="icon" data-app="settings">
-      <img src="assets/Screenshot_2026-04-10_210544-removebg-preview.png">
+      <img src="assets/Screenshot_2026-04-10_210544-removebg-preview.png" draggable="false">
       <span>Settings</span>
     </div>
 
   </div>
 
+  <!-- WINDOWS -->
   <div id="windows"></div>
 
+  <!-- TASKBAR -->
   <div id="taskbar">
     <button id="start-btn">Start</button>
     <div id="clock"></div>
   </div>
 
+  <!-- START MENU -->
   <div id="start-menu" class="hidden">
     <div data-app="explorer">File Explorer</div>
     <div data-app="settings">Settings</div>
@@ -45,5 +50,6 @@
 </div>
 
 <script src="app.js"></script>
+
 </body>
 </html>
