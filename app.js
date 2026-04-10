@@ -1,24 +1,15 @@
 let zIndex = 1;
 
-// FULLSCREEN
-window.addEventListener("click", async () => {
+window.addEventListener("click", () => {
   document.documentElement.requestFullscreen().catch(()=>{});
 });
 
-// BOOT
-setTimeout(() => {
-  document.getElementById("boot-screen").classList.add("hidden");
-  document.getElementById("desktop").classList.remove("hidden");
-}, 2000);
-
-// CLOCK
 setInterval(() => {
   const now = new Date();
   document.getElementById("clock").innerText =
     now.toLocaleTimeString();
 }, 1000);
 
-// START MENU
 const startBtn = document.getElementById("start-btn");
 const startMenu = document.getElementById("start-menu");
 
@@ -26,16 +17,16 @@ startBtn.onclick = () => {
   startMenu.classList.toggle("hidden");
 };
 
-// WINDOW SYSTEM
 function createWindow(title, content) {
   const win = document.createElement("div");
   win.className = "window";
-  win.style.top = "100px";
-  win.style.left = "100px";
+  win.style.top = "120px";
+  win.style.left = "120px";
   win.style.zIndex = zIndex++;
 
   win.innerHTML = `
-    <div class="titlebar">${title}
+    <div class="titlebar">
+      ${title}
       <button class="close">X</button>
     </div>
     <div class="content">${content}</div>
@@ -61,11 +52,8 @@ function createWindow(title, content) {
   };
 
   win.querySelector(".close").onclick = () => win.remove();
-
-  return win;
 }
 
-// APPS
 function openApp(app) {
   if (app === "explorer") {
     createWindow("Files", `
@@ -80,7 +68,6 @@ function openApp(app) {
   }
 }
 
-// ICON CLICK
 document.querySelectorAll(".icon, #start-menu div").forEach(el => {
   el.onclick = () => openApp(el.dataset.app);
 });
