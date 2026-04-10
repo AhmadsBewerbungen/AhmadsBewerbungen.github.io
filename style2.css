@@ -1,0 +1,99 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: monospace;
+}
+
+/* DESKTOP */
+#desktop {
+  position: fixed;
+  inset: 0;
+}
+
+/* BACKGROUND (SIMPLE + RELIABLE) */
+#background {
+  position: fixed;
+  inset: 0;
+  background: url("assets/windows_background.jpg") center/cover no-repeat;
+  z-index: -1;
+}
+
+/* ICONS */
+#icons {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.icon {
+  width: 80px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+}
+
+.icon img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.icon span {
+  font-size: 12px;
+}
+
+/* WINDOWS */
+.window {
+  position: absolute;
+  width: 300px;
+  height: 200px;
+  background: #ddd;
+  border: 2px solid #444;
+  z-index: 10;
+}
+
+.titlebar {
+  background: #444;
+  color: white;
+  padding: 5px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* TASKBAR */
+#taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 40px;
+  background: #222;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* START MENU */
+#start-menu {
+  position: fixed;
+  bottom: 40px;
+  left: 0;
+  background: #333;
+  padding: 10px;
+}
+
+.hidden {
+  display: none;
+}
