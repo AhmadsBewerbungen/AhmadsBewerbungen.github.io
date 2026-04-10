@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>System Interface</title>
+  <title>Pet Ayman</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -10,9 +10,11 @@
 <div id="boot-screen">Initializing system...</div>
 
 <div id="desktop" class="hidden">
+  
+  <!-- BACKGROUND -->
   <div id="wallpaper"></div>
 
-  <!-- Icons -->
+  <!-- ICONS -->
   <div class="icon" data-app="explorer">
     <img src="assets/folder.png">
     <span>Files</span>
@@ -23,23 +25,24 @@
     <span>Settings</span>
   </div>
 
-  <!-- Windows -->
+  <!-- WINDOWS -->
   <div id="windows"></div>
 
-  <!-- Taskbar -->
+  <!-- TASKBAR -->
   <div id="taskbar">
     <button id="start-btn">Start</button>
     <div id="clock"></div>
   </div>
 
-  <!-- Start Menu -->
+  <!-- START MENU -->
   <div id="start-menu" class="hidden">
     <div data-app="explorer">File Explorer</div>
     <div data-app="settings">Settings</div>
   </div>
 
-  <!-- CRT overlay -->
+  <!-- CRT -->
   <div id="crt"></div>
+
 </div>
 
 <script src="app.js"></script>
