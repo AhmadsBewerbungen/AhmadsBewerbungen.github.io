@@ -1,57 +1,97 @@
 let zIndex = 1;
 
-window.addEventListener("click", () => {
-  document.documentElement.requestFullscreen().catch(()=>{});
-});
+const clockEl = document.getElementById("clock");
 
-setInterval(() => {
-  const now = new Date();
-  document.getElementById("clock").innerText =
-    now.toLocaleTimeString();
-}, 1000);
+function updateClock() {
+  clockEl.textContent = new Date().toLocaleTimeString();
+}
+
+updateClock();
+setInterval(updateClock, 1000);
 
 const startBtn = document.getElementById("start-btn");
 const startMenu = document.getElementById("start-menu");
 
-startBtn.onclick = () => {
+startBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
   startMenu.classList.toggle("hidden");
-};
+});
+
+document.addEventListener("click", () => {
+  if (!startMenu.classList.contains("hidden")) {
+    startMenu.classList.add("hidden");
+  }
+});
+
+startMenu.addEventListener("click", (e) => e.stopPropagation());
+
+const bgImg = document.getElementById("bg-img");
+if (bgImg) {
+  bgImg.addEventListener("load", () => {
+    bgImg.classList.remove("is-hidden");
+  });
+  bgImg.addEventListener("error", () => {
+    bgImg.classList.add("is-hidden");
+  });
+  if (bgImg.complete && bgImg.naturalWidth > 0) {
+    bgImg.classList.remove("is-hidden");
+  }
+}
 
 function createWindow(title, content) {
   const win = document.createElement("div");
   win.className = "window";
   win.style.top = "120px";
   win.style.left = "120px";
-  win.style.zIndex = zIndex++;
+  win.style.zIndex = String(zIndex++);
 
-  win.innerHTML = `
-    <div class="titlebar">
-      ${title}
-      <button class="close">X</button>
-    </div>
-    <div class="content">${content}</div>
-  `;
+  const titleEl = document.createElement("span");
+  titleEl.className = "window-title";
+  titleEl.textContent = title;
+
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "close";
+  closeBtn.textContent = "X";
+
+  const titlebar = document.createElement("div");
+  titlebar.className = "titlebar";
+  titlebar.appendChild(titleEl);
+  titlebar.appendChild(closeBtn);
+
+  const body = document.createElement("div");
+  body.className = "content";
+  body.innerHTML = content;
+
+  win.appendChild(titlebar);
+  win.appendChild(body);
 
   document.getElementById("windows").appendChild(win);
 
-  const bar = win.querySelector(".titlebar");
+  closeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    win.remove();
+  });
 
-  bar.onmousedown = (e) => {
-    let offsetX = e.clientX - win.offsetLeft;
-    let offsetY = e.clientY - win.offsetTop;
+  titlebar.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".close")) return;
 
-    function move(e) {
-      win.style.left = e.clientX - offsetX + "px";
-      win.style.top = e.clientY - offsetY + "px";
+    const offsetX = e.clientX - win.offsetLeft;
+    const offsetY = e.clientY - win.offsetTop;
+
+    function move(ev) {
+      win.style.left = ev.clientX - offsetX + "px";
+      win.style.top = ev.clientY - offsetY + "px";
+    }
+
+    function up() {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
     }
 
     document.addEventListener("mousemove", move);
-    document.onmouseup = () => {
-      document.removeEventListener("mousemove", move);
-    };
-  };
-
-  win.querySelector(".close").onclick = () => win.remove();
+    document.addEventListener("mouseup", up);
+  });
 }
 
 function openApp(app) {
@@ -61,13 +101,18 @@ function openApp(app) {
       <p>Images</p>
       <p style="color:red;">system_log.txt</p>
     `);
-  }
-
-  if (app === "settings") {
+  } else if (app === "settings") {
     createWindow("Settings", "<p>Nothing works.</p>");
   }
 }
 
-document.querySelectorAll(".icon, #start-menu div").forEach(el => {
-  el.onclick = () => openApp(el.dataset.app);
+document.querySelectorAll(".icon").forEach((el) => {
+  el.addEventListener("click", () => openApp(el.dataset.app));
+});
+
+document.querySelectorAll("#start-menu div").forEach((el) => {
+  el.addEventListener("click", () => {
+    openApp(el.dataset.app);
+    startMenu.classList.add("hidden");
+  });
 });
