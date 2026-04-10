@@ -2,11 +2,12 @@
 let zIndex = 1;
 let horrorLevel = parseInt(localStorage.getItem("horrorLevel") || "0");
 
-// ===== BOOT SEQUENCE =====
+// ===== FULLSCREEN =====
 window.addEventListener("click", async () => {
   document.documentElement.requestFullscreen().catch(()=>{});
 });
 
+// ===== BOOT =====
 setTimeout(() => {
   document.getElementById("boot-screen").classList.add("hidden");
   document.getElementById("desktop").classList.remove("hidden");
@@ -44,7 +45,7 @@ function createWindow(title, content) {
 
   document.getElementById("windows").appendChild(win);
 
-  // Dragging
+  // DRAG
   const bar = win.querySelector(".titlebar");
   bar.onmousedown = (e) => {
     let offsetX = e.clientX - win.offsetLeft;
@@ -61,7 +62,7 @@ function createWindow(title, content) {
     };
   };
 
-  // Close
+  // CLOSE
   win.querySelector(".close").onclick = () => win.remove();
 
   return win;
@@ -70,12 +71,13 @@ function createWindow(title, content) {
 // ===== APPS =====
 function openApp(app) {
   if (app === "explorer") {
-    createWindow("Files", "<p>Documents<br>Images<br>system_log.txt</p>");
-  }
+    createWindow("Files", `
+      <p>Documents</p>
+      <p>Images</p>
+      <p style="color:red;">system_log.txt</p>
+    `);
 
-  if (app === "chat") {
-    createWindow("Assistant", `<p id="chat-text">Hello...</p>`);
-    setTimeout(progressHorror, 4000);
+    setTimeout(progressHorror, 5000);
   }
 
   if (app === "settings") {
@@ -83,12 +85,12 @@ function openApp(app) {
   }
 }
 
-// Icon clicks
+// ICON CLICK
 document.querySelectorAll(".icon, #start-menu div").forEach(el => {
   el.onclick = () => openApp(el.dataset.app);
 });
 
-// ===== POPUP SYSTEM =====
+// ===== POPUPS =====
 function showPopup(text) {
   const popup = createWindow("System Alert", `<p>${text}</p>`);
   popup.style.width = "200px";
@@ -104,19 +106,19 @@ function progressHorror() {
   }
 
   if (horrorLevel === 2) {
-    document.body.style.filter = "contrast(1.2)";
+    document.body.style.filter = "contrast(1.3)";
   }
 
   if (horrorLevel === 3) {
     randomGlitch();
   }
 
-  if (horrorLevel > 3) {
-    intrusiveChat();
+  if (horrorLevel >= 4) {
+    aggressivePopups();
   }
 }
 
-// ===== GLITCH EFFECT =====
+// ===== GLITCH =====
 function randomGlitch() {
   setInterval(() => {
     document.body.style.transform = `translate(${Math.random()*5}px)`;
@@ -126,11 +128,11 @@ function randomGlitch() {
   }, 3000);
 }
 
-// ===== INTRUSIVE CHAT =====
-function intrusiveChat() {
+// ===== ESCALATION =====
+function aggressivePopups() {
   setInterval(() => {
-    showPopup("Why are you still here?");
-  }, 10000);
+    showPopup("Stop opening files.");
+  }, 8000);
 }
 
 // ===== RANDOM EVENTS =====
