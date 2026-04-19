@@ -6,7 +6,7 @@
     background: #fff;
     min-height: 600px;
     position: relative;
-    padding: 48px 40px 60px;
+    padding: 24px 32px 60px;
   }
   .paper-lines {
     position: absolute;
@@ -15,8 +15,8 @@
     pointer-events: none;
     opacity: 0.45;
   }
-  .content { position: relative; z-index: 2; padding-left: 24px; }
-  .logo { height: 120px; display: block; margin-bottom: 44px; }
+  .content { position: relative; z-index: 2; }
+  .logo { height: 110px; display: block; margin-bottom: 36px; }
 
   .banners-grid {
     display: grid;
@@ -27,41 +27,37 @@
 
   .banner {
     border-radius: 16px;
-    overflow: hidden;
-    cursor: pointer;
-    position: relative;
-    height: 130px;
+    height: 140px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
     transition: transform 0.12s ease, box-shadow 0.12s ease;
+    overflow: hidden;
   }
 
   .banner:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   }
-
-  .banner:active { transform: translateY(0); }
 
   .banner-chess {
     background: #1a1a1a;
+    padding: 0;
   }
 
   .banner-chess img {
-    width: 100%;
-    height: 100%;
+    width: 85%;
+    height: 85%;
     object-fit: contain;
-    padding: 12px 16px;
+    filter: invert(1);
   }
 
   .banner-placeholder {
     background: #f3f3f3;
     border: 2px dashed #ccc;
-    border-radius: 16px;
   }
-  .banner-placeholder .banner-label {
+  .banner-placeholder span {
     font-family: 'Patrick Hand', cursive;
     font-size: 15px;
     color: #bbb;
@@ -74,19 +70,11 @@
     <img class="logo" src="https://AhmadsBewerbungen.github.io/4cf0ed4e-aaa9-4b10-b441-4674081c840e-removebg-preview.png" alt="Ahmad's Keller" />
 
     <div class="banners-grid">
-
       <a class="banner banner-chess" href="https://example.com" target="_blank">
         <img src="https://AhmadsBewerbungen.github.io/chess.png" alt="Chess" />
       </a>
-
-      <div class="banner banner-placeholder">
-        <span class="banner-label">coming soon...</span>
-      </div>
-
-      <div class="banner banner-placeholder">
-        <span class="banner-label">coming soon...</span>
-      </div>
-
+      <div class="banner banner-placeholder"><span>coming soon...</span></div>
+      <div class="banner banner-placeholder"><span>coming soon...</span></div>
     </div>
   </div>
 </div>
