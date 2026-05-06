@@ -1,80 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Frage</title>
+    <style>
+        body {
+            background-color: white;
+            color: black;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin-top: 100px;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
 
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  .page {
-    background: #fff;
-    min-height: 600px;
-    position: relative;
-    padding: 24px 32px 60px;
-  }
-  .paper-lines {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: repeating-linear-gradient(transparent, transparent 27px, #e0e8f5 28px);
-    pointer-events: none;
-    opacity: 0.45;
-  }
-  .content { position: relative; z-index: 2; }
-  .logo { height: 110px; display: block; margin-bottom: 36px; }
+    <h1>Magst du Ahmad?</h1>
 
-  .banners-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    max-width: 860px;
-  }
+    <button id="jaBtn">Ja</button>
+    <button id="neinBtn">Nein</button>
 
-  .banner {
-    border-radius: 16px;
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-    overflow: hidden;
-  }
+    <p id="antwort"></p>
 
-  .banner:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-  }
+    <script>
+        const jaBtn = document.getElementById("jaBtn");
+        const neinBtn = document.getElementById("neinBtn");
+        const antwort = document.getElementById("antwort");
 
-  .banner-chess {
-    background: #1a1a1a;
-    padding: 0;
-  }
+        let jaSize = 20;
 
-  .banner-chess img {
-    width: 85%;
-    height: 85%;
-    object-fit: contain;
-    filter: invert(1);
-  }
+        neinBtn.addEventListener("click", () => {
+            jaSize += 10;
+            jaBtn.style.fontSize = jaSize + "px";
+        });
 
-  .banner-placeholder {
-    background: #f3f3f3;
-    border: 2px dashed #ccc;
-  }
-  .banner-placeholder span {
-    font-family: 'Patrick Hand', cursive;
-    font-size: 15px;
-    color: #bbb;
-  }
-</style>
+        jaBtn.addEventListener("click", () => {
+            antwort.textContent = "Ich mag dich auch ❤️";
+        });
+    </script>
 
-<div class="page">
-  <div class="paper-lines"></div>
-  <div class="content">
-    <img class="logo" src="https://AhmadsBewerbungen.github.io/4cf0ed4e-aaa9-4b10-b441-4674081c840e-removebg-preview.png" alt="Ahmad's Keller" />
-
-    <div class="banners-grid">
-      <a class="banner banner-chess" href="https://example.com" target="_blank">
-        <img src="https://AhmadsBewerbungen.github.io/chess.png" alt="Chess" />
-      </a>
-      <div class="banner banner-placeholder"><span>coming soon...</span></div>
-      <div class="banner banner-placeholder"><span>coming soon...</span></div>
-    </div>
-  </div>
-</div>
+</body>
+</html>
