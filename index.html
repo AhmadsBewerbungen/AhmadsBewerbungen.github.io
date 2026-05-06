@@ -1,49 +1,128 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Frage</title>
-    <style>
-        body {
-            background-color: white;
-            color: black;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            margin-top: 100px;
-        }
-        button {
-            font-size: 20px;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Freundestest</title>
+<style>
+    body { font-family: Arial; background:#f4f4f4; text-align:center; }
+    .container { background:white; padding:20px; margin:30px auto; width:80%; max-width:600px; border-radius:10px; }
+    button { padding:10px 20px; font-size:16px; margin-top:20px; }
+</style>
 </head>
 <body>
 
-    <h1>Magst du Ahmad?</h1>
+<div class="container">
+    <h1>Wie gut kennst du mich?</h1>
+    <form id="quiz">
 
-    <button id="jaBtn">Ja</button>
-    <button id="neinBtn">Nein</button>
+        <p>1. Was ist meine Lieblingsfarbe?</p>
+        <input type="radio" name="q1" value="0"> Blau<br>
+        <input type="radio" name="q1" value="1"> Rot<br>
 
-    <p id="antwort"></p>
+        <p>2. Mein Lieblingsessen?</p>
+        <input type="radio" name="q2" value="1"> Pizza<br>
+        <input type="radio" name="q2" value="0"> Sushi<br>
 
-    <script>
-        const jaBtn = document.getElementById("jaBtn");
-        const neinBtn = document.getElementById("neinBtn");
-        const antwort = document.getElementById("antwort");
+        <p>3. Mein Lieblingsfilm?</p>
+        <input type="radio" name="q3" value="1"> Action<br>
+        <input type="radio" name="q3" value="0"> Horror<br>
 
-        let jaSize = 20;
+        <p>4. Meine Lieblingsjahreszeit?</p>
+        <input type="radio" name="q4" value="1"> Sommer<br>
+        <input type="radio" name="q4" value="0"> Winter<br>
 
-        neinBtn.addEventListener("click", () => {
-            jaSize += 10;
-            jaBtn.style.fontSize = jaSize + "px";
-        });
+        <p>5. Mein Hobby?</p>
+        <input type="radio" name="q5" value="1"> Gaming<br>
+        <input type="radio" name="q5" value="0"> Lesen<br>
 
-        jaBtn.addEventListener("click", () => {
-            antwort.textContent = "Ich mag dich auch ❤️";
-        });
-    </script>
+        <p>6. Lieblingsgetränk?</p>
+        <input type="radio" name="q6" value="1"> Cola<br>
+        <input type="radio" name="q6" value="0"> Wasser<br>
+
+        <p>7. Lieblingsmusik?</p>
+        <input type="radio" name="q7" value="1"> Rap<br>
+        <input type="radio" name="q7" value="0"> Klassik<br>
+
+        <p>8. Lieblingssport?</p>
+        <input type="radio" name="q8" value="1"> Fußball<br>
+        <input type="radio" name="q8" value="0"> Tennis<br>
+
+        <p>9. Haustier?</p>
+        <input type="radio" name="q9" value="1"> Hund<br>
+        <input type="radio" name="q9" value="0"> Katze<br>
+
+        <p>10. Lieblingsstadt?</p>
+        <input type="radio" name="q10" value="1"> Berlin<br>
+        <input type="radio" name="q10" value="0"> Paris<br>
+
+        <p>11. Lieblingsfach?</p>
+        <input type="radio" name="q11" value="1"> Mathe<br>
+        <input type="radio" name="q11" value="0"> Geschichte<br>
+
+        <p>12. Frühaufsteher oder Nachtmensch?</p>
+        <input type="radio" name="q12" value="1"> Nachtmensch<br>
+        <input type="radio" name="q12" value="0"> Frühaufsteher<br>
+
+        <p>13. Kaffee oder Tee?</p>
+        <input type="radio" name="q13" value="1"> Kaffee<br>
+        <input type="radio" name="q13" value="0"> Tee<br>
+
+        <p>14. Meer oder Berge?</p>
+        <input type="radio" name="q14" value="1"> Meer<br>
+        <input type="radio" name="q14" value="0"> Berge<br>
+
+        <p>15. Lieblingsspiel?</p>
+        <input type="radio" name="q15" value="1"> Fortnite<br>
+        <input type="radio" name="q15" value="0"> Minecraft<br>
+
+        <p>16. Lieblingsserie?</p>
+        <input type="radio" name="q16" value="1"> Netflix Serien<br>
+        <input type="radio" name="q16" value="0"> Anime<br>
+
+        <p>17. Lieblingsfeiertag?</p>
+        <input type="radio" name="q17" value="1"> Weihnachten<br>
+        <input type="radio" name="q17" value="0"> Halloween<br>
+
+        <p>18. Lieblingsauto?</p>
+        <input type="radio" name="q18" value="1"> BMW<br>
+        <input type="radio" name="q18" value="0"> Audi<br>
+
+        <p>19. Lieblingsfarbe Kleidung?</p>
+        <input type="radio" name="q19" value="1"> Schwarz<br>
+        <input type="radio" name="q19" value="0"> Weiß<br>
+
+        <p>20. Traumurlaub?</p>
+        <input type="radio" name="q20" value="1"> Strand<br>
+        <input type="radio" name="q20" value="0"> Stadt<br>
+
+        <button type="button" onclick="auswerten()">Auswerten</button>
+    </form>
+
+    <h2 id="result"></h2>
+</div>
+
+<script>
+function auswerten() {
+    let score = 0;
+    let form = document.forms["quiz"];
+
+    for (let i = 1; i <= 20; i++) {
+        let frage = form["q" + i];
+        for (let j = 0; j < frage.length; j++) {
+            if (frage[j].checked) {
+                score += parseInt(frage[j].value);
+            }
+        }
+    }
+
+    let text = "";
+    if (score >= 16) text = "🔥 Du kennst mich perfekt!";
+    else if (score >= 10) text = "👍 Ganz gut!";
+    else text = "😅 Du kennst mich nicht so gut.";
+
+    document.getElementById("result").innerText = "Punkte: " + score + "/20 - " + text;
+}
+</script>
 
 </body>
 </html>
