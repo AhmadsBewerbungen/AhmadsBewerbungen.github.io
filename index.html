@@ -1,128 +1,710 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Freundestest</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PROJECT AYMAN</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
-    body { font-family: Arial; background:#f4f4f4; text-align:center; }
-    .container { background:white; padding:20px; margin:30px auto; width:80%; max-width:600px; border-radius:10px; }
-    button { padding:10px 20px; font-size:16px; margin-top:20px; }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#111;
+    overflow:hidden;
+    font-family:'VT323', monospace;
+    color:white;
+    height:100vh;
+}
+
+.pixel-bg{
+    position:fixed;
+    inset:0;
+    background:radial-gradient(circle at top,#5a1f1f 0%, #1b1010 35%, #0d0d0d 100%);
+}
+
+.fog{
+    position:absolute;
+    inset:0;
+    opacity:0.05;
+    animation:fogMove 40s linear infinite;
+}
+
+@keyframes fogMove{
+    from{transform:translateX(0);}
+    to{transform:translateX(-400px);}
+}
+
+.pixel-stars{
+    position:fixed;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:1;
+}
+
+.star{
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:white;
+    opacity:0.5;
+    animation:blink 2s infinite alternate;
+}
+
+@keyframes blink{
+    from{opacity:0.2;}
+    to{opacity:1;}
+}
+
+/* ── MAIN MENU ── */
+.container{
+    position:relative;
+    z-index:5;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    padding:20px;
+}
+
+.logo{
+    font-family:'Press Start 2P', cursive;
+    font-size:54px;
+    text-align:center;
+    color:#ffe3c2;
+    text-shadow:6px 6px 0 #000, 0 0 25px rgba(255,130,80,0.25);
+    margin-bottom:12px;
+    line-height:1.5;
+    letter-spacing:4px;
+}
+
+.subtitle{
+    font-size:30px;
+    color:#b9b0a7;
+    margin-bottom:30px;
+    letter-spacing:3px;
+}
+
+.menu{
+    width:420px;
+    background:rgba(20,20,20,0.88);
+    border:5px solid #5f3a2b;
+    box-shadow:0 0 0 5px #1d1d1d, 0 0 40px rgba(0,0,0,0.5);
+    padding:28px;
+}
+
+/* Name input inside menu */
+.name-wrapper{
+    margin-bottom:18px;
+}
+
+.name-label{
+    font-size:22px;
+    color:#b9a090;
+    letter-spacing:2px;
+    margin-bottom:8px;
+    display:block;
+}
+
+.name-input{
+    width:100%;
+    padding:14px 16px;
+    font-size:28px;
+    background:#1a1a1a;
+    border:4px solid #5f3f2e;
+    color:#ffe7c7;
+    font-family:'VT323', monospace;
+    outline:none;
+    letter-spacing:2px;
+    transition:border-color 0.15s;
+}
+
+.name-input::placeholder{
+    color:#5a4030;
+}
+
+.name-input:focus{
+    border-color:#c08c64;
+}
+
+.btn{
+    width:100%;
+    padding:18px;
+    margin:10px 0;
+    border:none;
+    cursor:pointer;
+    font-size:30px;
+    font-family:'VT323', monospace;
+    background:#2b2b2b;
+    color:#f3d7b3;
+    border:4px solid #6d4a37;
+    transition:0.15s;
+}
+
+.btn:hover{
+    transform:translateY(-3px) scale(1.02);
+    background:#4f2f22;
+    color:white;
+    box-shadow:0 0 18px rgba(255,160,120,0.25);
+}
+
+.btn:active{
+    transform:translateY(2px);
+}
+
+/* ── PANELS (create / join) ── */
+.panel{
+    display:none;
+    position:fixed;
+    z-index:20;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:460px;
+    max-height:90vh;
+    overflow-y:auto;
+    background:rgba(15,15,15,0.97);
+    border:5px solid #704b36;
+    padding:30px;
+    box-shadow:0 0 0 5px #222, 0 0 60px rgba(0,0,0,0.8);
+    animation:fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translate(-50%,-48%) scale(0.95);}
+    to{opacity:1;transform:translate(-50%,-50%) scale(1);}
+}
+
+.panel h2{
+    font-family:'Press Start 2P';
+    font-size:18px;
+    color:#ffd6a5;
+    margin-bottom:22px;
+    text-align:center;
+    line-height:1.6;
+}
+
+.input{
+    width:100%;
+    padding:16px;
+    font-size:30px;
+    background:#1a1a1a;
+    border:4px solid #5f3f2e;
+    color:#fff;
+    font-family:'VT323', monospace;
+    margin-bottom:18px;
+    outline:none;
+    letter-spacing:3px;
+}
+
+.input:focus{
+    border-color:#c08c64;
+}
+
+.code-box{
+    margin:16px 0;
+    text-align:center;
+    padding:22px;
+    border:4px dashed #8f6348;
+    background:#191919;
+}
+
+.lobby-code{
+    font-family:'Press Start 2P';
+    font-size:42px;
+    color:#ffe7c7;
+    letter-spacing:10px;
+    text-shadow:4px 4px 0 #000;
+}
+
+.code-hint{
+    font-size:22px;
+    color:#7a6050;
+    margin-top:8px;
+    letter-spacing:1px;
+}
+
+.player-list{
+    margin-top:16px;
+}
+
+.player{
+    background:#222;
+    border:3px solid #5f4030;
+    padding:14px;
+    margin-bottom:10px;
+    font-size:28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.player-name-display{
+    color:#ffe7c7;
+}
+
+.tag{
+    color:#7fff9f;
+    font-size:22px;
+}
+
+.tag-wait{
+    color:#888;
+    font-size:22px;
+}
+
+.back{
+    margin-top:8px;
+    background:#44251c;
+    border-color:#7a3a28;
+}
+
+/* ── CHARACTER SELECT ── */
+.character-screen{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0e0e0e;
+    z-index:10;
+    padding:28px 30px;
+    overflow-y:auto;
+}
+
+.char-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:8px;
+}
+
+.character-title{
+    font-family:'Press Start 2P';
+    color:#ffe3c0;
+    font-size:22px;
+    line-height:1.4;
+}
+
+.playing-as{
+    font-size:26px;
+    color:#b9a090;
+    letter-spacing:2px;
+    margin-bottom:28px;
+}
+
+.playing-as span{
+    color:#ffcc88;
+}
+
+.characters{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:20px;
+}
+
+.card{
+    background:#1b1b1b;
+    border:5px solid #644332;
+    padding:18px;
+    transition:0.2s;
+    cursor:pointer;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+    border-color:#c08c64;
+    box-shadow:0 0 30px rgba(255,180,120,0.2);
+}
+
+.card:hover .char-name{
+    color:#ffd49a;
+}
+
+.card-img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    image-rendering:pixelated;
+    border:4px solid #333;
+    display:block;
+}
+
+.char-name{
+    margin-top:12px;
+    font-size:30px;
+    color:#ffe0ba;
+    letter-spacing:1px;
+    transition:color 0.15s;
+}
+
+/* Move list table */
+.movelist{
+    margin-top:12px;
+    width:100%;
+    border-collapse:collapse;
+}
+
+.movelist tr{
+    border-bottom:2px solid #2e2018;
+}
+
+.movelist tr:last-child{
+    border-bottom:none;
+}
+
+.movelist td{
+    padding:7px 6px;
+    font-size:22px;
+    vertical-align:middle;
+}
+
+/* Key badge */
+.key{
+    display:inline-block;
+    padding:3px 10px;
+    font-family:'Press Start 2P', cursive;
+    font-size:11px;
+    border-radius:0;
+    letter-spacing:1px;
+    white-space:nowrap;
+    line-height:1.6;
+}
+
+.key-m1{
+    background:#2a2a2a;
+    color:#ccbbaa;
+    border:2px solid #5a5040;
+}
+
+.key-y{
+    background:#3a2a00;
+    color:#ffd060;
+    border:2px solid #8a6800;
+}
+
+.key-x{
+    background:#380010;
+    color:#ff7088;
+    border:2px solid #880030;
+}
+
+.move-name{
+    color:#d0bba0;
+    padding-left:10px;
+}
+
+.move-desc{
+    color:#6a5848;
+    font-size:19px;
+    padding-left:6px;
+    text-align:right;
+    white-space:nowrap;
+}
+
+.char-back-btn{
+    margin-top:28px;
+    display:inline-block;
+    padding:16px 28px;
+    font-size:26px;
+    font-family:'VT323', monospace;
+    background:#44251c;
+    border:4px solid #7a3a28;
+    color:#f3d7b3;
+    cursor:pointer;
+    transition:0.15s;
+}
+
+.char-back-btn:hover{
+    background:#5a3020;
+    color:white;
+}
+
+/* Scanline overlay for extra retro feel */
+.scanlines{
+    position:fixed;
+    inset:0;
+    background:repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+    );
+    pointer-events:none;
+    z-index:100;
+}
 </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Wie gut kennst du mich?</h1>
-    <form id="quiz">
+<div class="pixel-bg"></div>
+<div class="fog"></div>
+<div class="scanlines"></div>
+<div class="pixel-stars" id="stars"></div>
 
-        <p>1. Was ist meine Lieblingsfarbe?</p>
-        <input type="radio" name="q1" value="0"> Blau<br>
-        <input type="radio" name="q1" value="1"> Rot<br>
+<!-- MAIN MENU -->
+<div class="container" id="mainMenu">
+    <div class="logo">PROJECT<br>AYMAN</div>
+    <div class="subtitle">PIXEL ANIME ARENA</div>
 
-        <p>2. Mein Lieblingsessen?</p>
-        <input type="radio" name="q2" value="1"> Pizza<br>
-        <input type="radio" name="q2" value="0"> Sushi<br>
+    <div class="menu">
+        <div class="name-wrapper">
+            <label class="name-label" for="playerName">YOUR NAME</label>
+            <input
+                class="name-input"
+                id="playerName"
+                type="text"
+                maxlength="16"
+                placeholder="ENTER NAME..."
+                autocomplete="off"
+                spellcheck="false"
+            >
+        </div>
+        <button class="btn" onclick="showCreateLobby()">CREATE LOBBY</button>
+        <button class="btn" onclick="showJoinLobby()">JOIN LOBBY</button>
+    </div>
+</div>
 
-        <p>3. Mein Lieblingsfilm?</p>
-        <input type="radio" name="q3" value="1"> Action<br>
-        <input type="radio" name="q3" value="0"> Horror<br>
+<!-- CREATE LOBBY PANEL -->
+<div class="panel" id="createPanel">
+    <h2>LOBBY CREATED</h2>
 
-        <p>4. Meine Lieblingsjahreszeit?</p>
-        <input type="radio" name="q4" value="1"> Sommer<br>
-        <input type="radio" name="q4" value="0"> Winter<br>
+    <div class="code-box">
+        <div class="lobby-code" id="generatedCode">J9M</div>
+        <div class="code-hint">SHARE THIS CODE</div>
+    </div>
 
-        <p>5. Mein Hobby?</p>
-        <input type="radio" name="q5" value="1"> Gaming<br>
-        <input type="radio" name="q5" value="0"> Lesen<br>
+    <div class="player-list" id="createPlayerList">
+        <!-- filled by JS -->
+    </div>
 
-        <p>6. Lieblingsgetränk?</p>
-        <input type="radio" name="q6" value="1"> Cola<br>
-        <input type="radio" name="q6" value="0"> Wasser<br>
+    <button class="btn" onclick="startGame()">▶ START MATCH</button>
+    <button class="btn back" onclick="goBack()">← BACK</button>
+</div>
 
-        <p>7. Lieblingsmusik?</p>
-        <input type="radio" name="q7" value="1"> Rap<br>
-        <input type="radio" name="q7" value="0"> Klassik<br>
+<!-- JOIN LOBBY PANEL -->
+<div class="panel" id="joinPanel">
+    <h2>JOIN LOBBY</h2>
 
-        <p>8. Lieblingssport?</p>
-        <input type="radio" name="q8" value="1"> Fußball<br>
-        <input type="radio" name="q8" value="0"> Tennis<br>
+    <input class="input" id="joinCode" type="text" maxlength="3" placeholder="ENTER CODE" autocomplete="off" spellcheck="false">
 
-        <p>9. Haustier?</p>
-        <input type="radio" name="q9" value="1"> Hund<br>
-        <input type="radio" name="q9" value="0"> Katze<br>
+    <button class="btn" onclick="startGame()">▶ JOIN MATCH</button>
+    <button class="btn back" onclick="goBack()">← BACK</button>
+</div>
 
-        <p>10. Lieblingsstadt?</p>
-        <input type="radio" name="q10" value="1"> Berlin<br>
-        <input type="radio" name="q10" value="0"> Paris<br>
+<!-- CHARACTER SELECT -->
+<div class="character-screen" id="characterScreen">
+    <div class="char-header">
+        <div class="character-title">SELECT YOUR<br>FIGHTER</div>
+        <button class="char-back-btn" onclick="goBack()">← BACK</button>
+    </div>
+    <div class="playing-as">PLAYING AS: <span id="displayName">PLAYER</span></div>
 
-        <p>11. Lieblingsfach?</p>
-        <input type="radio" name="q11" value="1"> Mathe<br>
-        <input type="radio" name="q11" value="0"> Geschichte<br>
+    <div class="characters">
 
-        <p>12. Frühaufsteher oder Nachtmensch?</p>
-        <input type="radio" name="q12" value="1"> Nachtmensch<br>
-        <input type="radio" name="q12" value="0"> Frühaufsteher<br>
+        <!-- SOUL RONIN -->
+        <div class="card" onclick="selectChar(this)">
+            <img class="card-img" src="https://images.unsplash.com/photo-1541560052-5e137f229371?q=80&w=800&auto=format&fit=crop" alt="Soul Ronin">
+            <div class="char-name">SOUL RONIN</div>
+            <table class="movelist">
+                <tr>
+                    <td><span class="key key-m1">M1</span></td>
+                    <td class="move-name">Quick Slash</td>
+                    <td class="move-desc">3-hit combo</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-y">Y</span></td>
+                    <td class="move-name">Spirit Blade</td>
+                    <td class="move-desc">Charged strike</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-x">X</span></td>
+                    <td class="move-name">Flash Dash</td>
+                    <td class="move-desc">Teleport dash</td>
+                </tr>
+            </table>
+        </div>
 
-        <p>13. Kaffee oder Tee?</p>
-        <input type="radio" name="q13" value="1"> Kaffee<br>
-        <input type="radio" name="q13" value="0"> Tee<br>
+        <!-- CURSED MONK -->
+        <div class="card" onclick="selectChar(this)">
+            <img class="card-img" src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=800&auto=format&fit=crop" alt="Cursed Monk">
+            <div class="char-name">CURSED MONK</div>
+            <table class="movelist">
+                <tr>
+                    <td><span class="key key-m1">M1</span></td>
+                    <td class="move-name">Curse Strike</td>
+                    <td class="move-desc">Heavy punch</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-y">Y</span></td>
+                    <td class="move-name">Black Flash</td>
+                    <td class="move-desc">Cursed burst</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-x">X</span></td>
+                    <td class="move-name">Domain Rift</td>
+                    <td class="move-desc">Reality warp</td>
+                </tr>
+            </table>
+        </div>
 
-        <p>14. Meer oder Berge?</p>
-        <input type="radio" name="q14" value="1"> Meer<br>
-        <input type="radio" name="q14" value="0"> Berge<br>
+        <!-- SKY SAIYAN -->
+        <div class="card" onclick="selectChar(this)">
+            <img class="card-img" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800&auto=format&fit=crop" alt="Sky Saiyan">
+            <div class="char-name">SKY SAIYAN</div>
+            <table class="movelist">
+                <tr>
+                    <td><span class="key key-m1">M1</span></td>
+                    <td class="move-name">Energy Jab</td>
+                    <td class="move-desc">Ki rapid punches</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-y">Y</span></td>
+                    <td class="move-name">Ki Burst</td>
+                    <td class="move-desc">Energy blast</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-x">X</span></td>
+                    <td class="move-name">Ascension</td>
+                    <td class="move-desc">Aerial launch</td>
+                </tr>
+            </table>
+        </div>
 
-        <p>15. Lieblingsspiel?</p>
-        <input type="radio" name="q15" value="1"> Fortnite<br>
-        <input type="radio" name="q15" value="0"> Minecraft<br>
+        <!-- DEATH SCRIBE -->
+        <div class="card" onclick="selectChar(this)">
+            <img class="card-img" src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=800&auto=format&fit=crop" alt="Death Scribe">
+            <div class="char-name">DEATH SCRIBE</div>
+            <table class="movelist">
+                <tr>
+                    <td><span class="key key-m1">M1</span></td>
+                    <td class="move-name">Shadow Claw</td>
+                    <td class="move-desc">Dark scratch</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-y">Y</span></td>
+                    <td class="move-name">Shadow Curse</td>
+                    <td class="move-desc">Binding curse</td>
+                </tr>
+                <tr>
+                    <td><span class="key key-x">X</span></td>
+                    <td class="move-name">Fear Realm</td>
+                    <td class="move-desc">Terror zone</td>
+                </tr>
+            </table>
+        </div>
 
-        <p>16. Lieblingsserie?</p>
-        <input type="radio" name="q16" value="1"> Netflix Serien<br>
-        <input type="radio" name="q16" value="0"> Anime<br>
-
-        <p>17. Lieblingsfeiertag?</p>
-        <input type="radio" name="q17" value="1"> Weihnachten<br>
-        <input type="radio" name="q17" value="0"> Halloween<br>
-
-        <p>18. Lieblingsauto?</p>
-        <input type="radio" name="q18" value="1"> BMW<br>
-        <input type="radio" name="q18" value="0"> Audi<br>
-
-        <p>19. Lieblingsfarbe Kleidung?</p>
-        <input type="radio" name="q19" value="1"> Schwarz<br>
-        <input type="radio" name="q19" value="0"> Weiß<br>
-
-        <p>20. Traumurlaub?</p>
-        <input type="radio" name="q20" value="1"> Strand<br>
-        <input type="radio" name="q20" value="0"> Stadt<br>
-
-        <button type="button" onclick="auswerten()">Auswerten</button>
-    </form>
-
-    <h2 id="result"></h2>
+    </div>
 </div>
 
 <script>
-function auswerten() {
-    let score = 0;
-    let form = document.forms["quiz"];
+const createPanel     = document.getElementById('createPanel');
+const joinPanel       = document.getElementById('joinPanel');
+const mainMenu        = document.getElementById('mainMenu');
+const characterScreen = document.getElementById('characterScreen');
+const playerNameInput = document.getElementById('playerName');
+const displayName     = document.getElementById('displayName');
+const createPlayerList= document.getElementById('createPlayerList');
 
-    for (let i = 1; i <= 20; i++) {
-        let frage = form["q" + i];
-        for (let j = 0; j < frage.length; j++) {
-            if (frage[j].checked) {
-                score += parseInt(frage[j].value);
-            }
-        }
+/* ── helpers ── */
+function getPlayerName(){
+    const n = playerNameInput.value.trim();
+    return n.length ? n.toUpperCase() : 'PLAYER';
+}
+
+function randomCode(){
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for(let i = 0; i < 3; i++){
+        code += chars[Math.floor(Math.random() * chars.length)];
     }
+    return code;
+}
 
-    let text = "";
-    if (score >= 16) text = "🔥 Du kennst mich perfekt!";
-    else if (score >= 10) text = "👍 Ganz gut!";
-    else text = "😅 Du kennst mich nicht so gut.";
+function hideAll(){
+    mainMenu.style.display      = 'none';
+    createPanel.style.display   = 'none';
+    joinPanel.style.display     = 'none';
+    characterScreen.style.display = 'none';
+}
 
-    document.getElementById("result").innerText = "Punkte: " + score + "/20 - " + text;
+/* ── screens ── */
+function showCreateLobby(){
+    hideAll();
+    createPanel.style.display = 'block';
+    document.getElementById('generatedCode').innerText = randomCode();
+
+    // Populate player list with the entered name
+    const name = getPlayerName();
+    createPlayerList.innerHTML = `
+        <div class="player">
+            <span class="player-name-display">${escHtml(name)}</span>
+            <span class="tag">HOST · READY</span>
+        </div>
+        <div class="player">
+            <span style="color:#5a4535">EMPTY SLOT</span>
+            <span class="tag-wait">WAITING...</span>
+        </div>
+        <div class="player">
+            <span style="color:#5a4535">EMPTY SLOT</span>
+            <span class="tag-wait">WAITING...</span>
+        </div>
+    `;
+}
+
+function showJoinLobby(){
+    hideAll();
+    joinPanel.style.display = 'block';
+    document.getElementById('joinCode').value = '';
+    document.getElementById('joinCode').focus();
+}
+
+function goBack(){
+    hideAll();
+    mainMenu.style.display = 'flex';
+}
+
+function startGame(){
+    const name = getPlayerName();
+    displayName.innerText = name;
+    hideAll();
+    characterScreen.style.display = 'block';
+}
+
+function selectChar(card){
+    // Remove previous selection
+    document.querySelectorAll('.card').forEach(c => {
+        c.style.borderColor = '';
+        c.style.background  = '';
+    });
+    card.style.borderColor = '#ffcc88';
+    card.style.background  = '#2b1a0f';
+}
+
+/* ── safety ── */
+function escHtml(str){
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── join code auto-uppercase ── */
+document.getElementById('joinCode').addEventListener('input', function(){
+    this.value = this.value.toUpperCase();
+});
+
+/* ── stars ── */
+const starsEl = document.getElementById('stars');
+for(let i = 0; i < 120; i++){
+    const s = document.createElement('div');
+    s.classList.add('star');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top  = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 2 + 's';
+    starsEl.appendChild(s);
 }
 </script>
-
 </body>
 </html>
