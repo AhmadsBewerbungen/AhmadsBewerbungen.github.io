@@ -242,32 +242,49 @@
     }
 
     function generateCode() {
-      return Math.random().toString(36).substring(2, 7).toUpperCase();
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let code = '';
+
+      for (let i = 0; i < 3; i++) {
+        code += letters[Math.floor(Math.random() * letters.length)];
+      }
+
+      return code;
     }
 
     function createLobby() {
       const player = document.getElementById('playerName').value || 'Spieler';
       const code = generateCode();
 
-      const lobbies = JSON.parse(localStorage.getItem('lobbies') || '[]');
-      lobbies.push({ code, player });
+      localStorage.setItem('currentLobby', JSON.stringify({
+        code,
+        host: player,
+        players: [player]
+      }));
 
-      localStorage.setItem('lobbies', JSON.stringify(lobbies));
-
-      statusText.innerHTML = `Lobby erstellt: <b>${code}</b>`;
+      statusText.innerHTML = `Lobby erstellt: <b>${code}</b><br>Warte auf Spieler...`;
 
       loadLobbies();
     }
 
     function joinLobby() {
       const code = document.getElementById('joinCode').value.toUpperCase();
+      const player = document.getElementById('playerName').value || 'Gast';
 
-      const lobbies = JSON.parse(localStorage.getItem('lobbies') || '[]');
-      const found = lobbies.find(l => l.code === code);
+      const lobby = JSON.parse(localStorage.getItem('currentLobby'));
 
-      if (found) {
-        statusText.innerHTML = `Du bist Lobby <b>${code}</b> beigetreten`;
+      if (lobby && lobby.code === code) {
+        if (!lobby.players.includes(player)) {
+          lobby.players.push(player);
+        }
+
+        localStorage.setItem('currentLobby', JSON.stringify(lobby));
+
+        statusText.innerHTML = `Verbunden mit Lobby <b>${code}</b><br>Spieler: ${lobby.players.join(', ')}`;
       } else {
+        alert('Lobby nicht gefunden');
+      }
+    } else {
         alert('Lobby nicht gefunden');
       }
     }
@@ -278,14 +295,30 @@
     }
 
     function loadLobbies() {
-      const lobbies = JSON.parse(localStorage.getItem('lobbies') || '[]');
+      const lobby = JSON.parse(localStorage.getItem('currentLobby'));
 
       lobbyList.innerHTML = '';
 
-      if (lobbies.length === 0) {
+      if (!lobby) {
         lobbyList.innerHTML = '<div style="opacity:0.7">Keine Lobbys</div>';
         return;
       }
+
+      const item = document.createElement('div');
+      item.className = 'lobby-item';
+
+      item.innerHTML = `
+        <div>
+          <div><b>${lobby.code}</b></div>
+          <div style="font-size:14px;opacity:0.7">${lobby.players.length}/2 Spieler</div>
+        </div>
+        <button style="width:auto;padding:10px 14px" onclick="quickJoin('${lobby.code}')">
+          Join
+        </button>
+      `;
+
+      lobbyList.appendChild(item);
+    }
 
       lobbies.forEach(lobby => {
         const item = document.createElement('div');
